@@ -1,529 +1,75 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>MAGI SYSTEM — NERV</title>
-<style>
-/* ─── RESET ─────────────────────────────────── */
-*{box-sizing:border-box;margin:0;padding:0}
-
-:root{
-  --or:   #ff8c00;   /* main orange */
-  --or2:  #c8640a;   /* border/dim orange */
-  --cy:   #5bc8d2;   /* panel cyan */
-  --bg:   #000000;
-  --font: 'Courier New',Courier,monospace;
-}
-
-html{background:#0e0e0e;min-height:100vh;
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--font);padding:18px}
-
-/* ─── OUTER FRAME (double border) ───────────── */
-#frame{
-  width:100%;max-width:960px;
-  background:var(--bg);
-  border:2px solid var(--or2);
-  /* second border via box-shadow */
-  box-shadow:
-    0 0 0 5px #000,
-    0 0 0 7px var(--or2),
-    0 0 28px #c8640a44;
-  position:relative;
-}
-
-/* ─── TOP BANNER ─────────────────────────────── */
-.banner{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  border-bottom:2px solid var(--or2);
-}
-.banner-left,.banner-right{padding:10px 14px}
-.banner-left{border-right:1px solid var(--or2)}
-
-.kanji{
-  font-size:clamp(18px,3vw,30px);
-  font-weight:bold;
-  color:var(--or);
-  letter-spacing:6px;
-  display:block;
-  margin-bottom:6px;
-  text-shadow:0 0 8px #ff8c0066;
-}
-.sys-info{
-  color:var(--or2);font-size:10px;
-  line-height:1.75;letter-spacing:.5px;
-}
-.sys-info .hi{color:var(--or)}
-
-.banner-right{
-  display:flex;flex-direction:column;align-items:flex-end;gap:4px;
-}
-.jouhou-btn{
-  border:1px solid var(--or2);color:var(--or2);
-  font-family:var(--font);font-size:11px;
-  letter-spacing:2px;padding:3px 10px;
-  cursor:pointer;background:none;
-  transition:all .2s;
-}
-.jouhou-btn:hover{background:#1a0a00;color:var(--or);border-color:var(--or)}
-
-/* verdict zone */
-#kaiketsu-zone{
-  flex:1;width:100%;
-  border:1px solid #c8640a44;
-  padding:6px 8px;
-  min-height:52px;
-  font-size:11px;
-  color:var(--or);
-  line-height:1.6;
-  margin-top:4px;
-  background:#05010066;
-  position:relative;overflow:hidden;
-}
-#kaiketsu-zone::before{
-  content:'解決出力';
-  position:absolute;top:2px;left:5px;
-  font-size:8px;color:#c8640a55;letter-spacing:1px;
-}
-#kaiketsu-text{margin-top:12px;min-height:1em}
-
-/* ─── PANELS AREA ────────────────────────────── */
-#panels-area{
-  position:relative;
-  width:100%;
-  /* Maintain aspect ratio ~16:9 ish */
-  padding-bottom:46%;
-  background:var(--bg);
-  overflow:hidden;
-  border-bottom:2px solid var(--or2);
-}
-
-/* SVG connector layer (z=1) */
-#lines-svg{
-  position:absolute;inset:0;
-  width:100%;height:100%;
-  z-index:1;pointer-events:none;
-}
-
-/* Panel common (z=2) */
-.mp{
-  position:absolute;z-index:2;
-  background:var(--cy);
-  overflow:hidden;
-  transition:filter .3s;
-}
-.mp.scanning{filter:brightness(1.3)}
-
-/* BALTHASAR·2 — top center, wide-top trapezoid */
-#pb{
-  width:42%;height:44%;
-  left:29%;top:2%;
-  clip-path:polygon(10% 0%,90% 0%,76% 100%,24% 100%);
-}
-
-/* CASPER·3 — bottom left, right-leaning trapezoid */
-#pc{
-  width:40%;height:44%;
-  left:0%;top:52%;
-  clip-path:polygon(0% 0%,90% 13%,90% 87%,0% 100%);
-}
-
-/* MELCHIOR·1 — bottom right, left-leaning trapezoid */
-#pm{
-  width:40%;height:44%;
-  right:0%;top:52%;
-  clip-path:polygon(10% 13%,100% 0%,100% 100%,10% 87%);
-}
-
-/* panel inner layout */
-.pc{
-  width:100%;height:100%;
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  padding:10px 14px;
-}
-.pname{
-  color:#000;font-size:clamp(11px,2.2vw,20px);
-  font-weight:bold;letter-spacing:2px;
-  text-align:center;line-height:1.3;
-}
-.psub{
-  color:#003a3d;font-size:clamp(7px,1vw,9px);
-  letter-spacing:1px;margin-top:3px;text-align:center;
-}
-.pbody{
-  display:none;
-  color:#001a1c;font-size:clamp(8px,1.1vw,10.5px);
-  line-height:1.55;white-space:pre-wrap;
-  word-break:break-all;overflow-y:auto;
-  width:100%;height:100%;padding:4px 2px;
-}
-.pbody .sh{color:#003a3d;font-weight:bold}
-
-/* MAGI center label (z=3) */
-#magi-label{
-  position:absolute;z-index:3;
-  left:50%;top:50%;transform:translate(-50%,-52%);
-  text-align:center;pointer-events:none;
-}
-#magi-label .dot{
-  color:var(--or);font-size:clamp(10px,1.5vw,16px);
-  text-shadow:0 0 8px var(--or);display:block;
-  animation:mlblink 3s ease-in-out infinite;
-}
-#magi-label .word{
-  color:var(--or);font-size:clamp(9px,1.2vw,13px);
-  font-weight:bold;letter-spacing:3px;
-  text-shadow:0 0 8px var(--or);
-}
-@keyframes mlblink{0%,100%{opacity:1}50%{opacity:.55}}
-
-/* ─── INPUT AREA ─────────────────────────────── */
-.input-area{padding:11px 14px;background:var(--bg)}
-
-.iline{
-  display:flex;align-items:center;
-  gap:8px;margin-bottom:9px;
-  font-size:11px;color:var(--or);
-}
-.ilabel{
-  min-width:100px;letter-spacing:1px;
-  flex-shrink:0;
-}
-.dots-fill{
-  flex:1;color:#c8640a55;letter-spacing:4px;
-  font-size:13px;overflow:hidden;white-space:nowrap;
-  user-select:none;
-}
-input[type=text]{
-  flex:1;background:var(--bg);
-  border:none;border-bottom:1px solid var(--or2);
-  color:var(--or);font-family:var(--font);
-  font-size:11px;padding:3px 6px;
-  outline:none;letter-spacing:1px;
-  transition:border-color .2s;
-  caret-color:var(--or);
-}
-input[type=text]:focus{border-bottom-color:var(--or)}
-input[type=text]::placeholder{color:#2a0d00}
-
-.exec-btn{
-  background:var(--bg);border:1px solid var(--or2);
-  color:var(--or2);font-family:var(--font);
-  font-size:10px;letter-spacing:2px;
-  padding:4px 14px;cursor:pointer;
-  white-space:nowrap;flex-shrink:0;
-  transition:all .2s;
-}
-.exec-btn:hover:not(:disabled){
-  background:#150700;color:var(--or);
-  border-color:var(--or);
-  box-shadow:0 0 8px #ff8c0055;
-}
-.exec-btn:disabled{opacity:.35;cursor:not-allowed}
-
-#err{
-  display:none;color:#ff2200;
-  font-size:10px;letter-spacing:1px;margin-top:5px;
-}
-
-/* ─── FOOTER ─────────────────────────────────── */
-.foot{
-  border-top:1px solid var(--or2);
-  padding:4px 12px;
-  display:flex;justify-content:space-between;
-  font-size:9px;color:#c8640a55;letter-spacing:1px;
-}
-
-/* ─── CARET ──────────────────────────────────── */
-.caret{
-  display:inline-block;width:6px;
-  background:#001a1c;
-  animation:cblink .65s step-end infinite;
-  vertical-align:text-bottom;height:1em;margin-left:1px;
-}
-@keyframes cblink{50%{opacity:0}}
-
-/* verdict area caret */
-#kaiketsu-text .caret{background:var(--or)}
-
-/* ─── SCAN-IN ANIMATION ──────────────────────── */
-@keyframes scanin{
-  from{clip-path:polygon(50% 50%,50% 50%,50% 50%,50% 50%);opacity:0}
-  to{opacity:1}
-}
-#pb.scanning{animation:scanin-b .5s ease-out forwards}
-#pc.scanning{animation:scanin-c .5s ease-out forwards}
-#pm.scanning{animation:scanin-m .5s ease-out forwards}
-
-@keyframes scanin-b{
-  from{clip-path:polygon(50% 50%,50% 50%,50% 50%,50% 50%);opacity:0}
-  to{clip-path:polygon(10% 0%,90% 0%,76% 100%,24% 100%);opacity:1}
-}
-@keyframes scanin-c{
-  from{clip-path:polygon(45% 50%,45% 50%,45% 50%,45% 50%);opacity:0}
-  to{clip-path:polygon(0% 0%,90% 13%,90% 87%,0% 100%);opacity:1}
-}
-@keyframes scanin-m{
-  from{clip-path:polygon(55% 50%,55% 50%,55% 50%,55% 50%);opacity:0}
-  to{clip-path:polygon(10% 13%,100% 0%,100% 100%,10% 87%);opacity:1}
-}
-</style>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAGI-Link — AI Decision System</title>
+    <link rel="stylesheet" href="document.css">
+    <meta name="description" content="MAGI-Link AI Decision System — MELCHIOR · BALTHASAR · CASPER">
 </head>
-<body>
-<div id="frame">
-
-  <!-- ══ TOP BANNER ══ -->
-  <div class="banner">
-    <div class="banner-left">
-      <span class="kanji">質問</span>
-      <div class="sys-info">
-CODE: <span class="hi" id="scode">3021-A</span><br>
-FILE: <span class="hi">MAGI_SYS</span><br>
-EXTENTION: <span class="hi">3023</span><br>
-EX_MODE: <span class="hi">OFF</span><br>
-PRIORITY: <span class="hi">AAA</span>
-      </div>
+<body data-loading="true">
+    <h2 class="magi-logo">MAGI</h2>
+    <div class="magi-box">
+        <header>
+            <h1>提訴</h1>
+            <h1>決議</h1>
+        </header>
+        <div class="config-box">
+            <h4>
+                Code:
+                <b class="code"></b>
+            </h4>
+            <p>
+                File:
+                <b class="file">MAGI_SYS</b>
+            </p>
+            <p>
+                Volume:
+                <b class="volume" data-text="66"></b>
+            </p>
+            <p>
+                EX_MODE:
+                <b class="ex-mode"></b>
+            </p>
+            <p>
+                Priority:
+                <b class="priority" data-text="AAA"></b>
+            </p>
+            <p>
+                Sound:
+                <b class="sound"></b>
+            </p>
+            <p class="question-row">
+                Question:
+                <input type="text" class="question-input" placeholder="INPUT DECISION QUERY">
+                <button class="question-btn">MAGI</button>
+            </p>
+            <b class="reset">RESET</b>
+        </div>
+        <div class="final-vote-status"></div>
+        <div class="magi-list">
+            <div class="magi-item melchior">
+                <h3>MELCHIOR</h3>
+                <h2></h2>
+            </div>
+            <div class="magi-item malthasar">
+                <h2></h2>
+                <h3>BALTHASAR</h3>
+            </div>
+            <div class="magi-item casper">
+                <h3>CASPER</h3>
+                <h2></h2>
+            </div>
+        </div>
+        <footer>
+            <p>
+                <a href="https://github.com/Hurr1cane755/MAGI_System" target="_blank">MAGI-Link</a>
+                ·
+                <a href="https://github.com/itorr/magi" target="_blank">UI based on itorr/magi</a>
+            </p>
+        </footer>
     </div>
-    <div class="banner-right">
-      <span class="kanji" style="text-align:right">解決</span>
-      <button class="jouhou-btn">情報</button>
-      <div id="kaiketsu-zone">
-        <div id="kaiketsu-text"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══ PANELS ══ -->
-  <div id="panels-area">
-
-    <!-- SVG connector lines -->
-    <svg id="lines-svg" viewBox="0 0 100 100" preserveAspectRatio="none"
-         xmlns="http://www.w3.org/2000/svg">
-
-      <!-- outer triangle -->
-      <line x1="50"  y1="46" x2="36"  y2="74" stroke="#c8640a" stroke-width=".35" opacity=".9"/>
-      <line x1="50"  y1="46" x2="64"  y2="74" stroke="#c8640a" stroke-width=".35" opacity=".9"/>
-      <line x1="36"  y1="74" x2="64"  y2="74" stroke="#c8640a" stroke-width=".35" opacity=".9"/>
-
-      <!-- spokes to center -->
-      <line x1="50"  y1="46" x2="50"  y2="58" stroke="#ff8c00" stroke-width=".25" opacity=".7"/>
-      <line x1="36"  y1="74" x2="50"  y2="58" stroke="#ff8c00" stroke-width=".25" opacity=".7"/>
-      <line x1="64"  y1="74" x2="50"  y2="58" stroke="#ff8c00" stroke-width=".25" opacity=".7"/>
-
-      <!-- corner tick marks on triangle -->
-      <circle cx="50"  cy="46" r=".7" fill="#c8640a"/>
-      <circle cx="36"  cy="74" r=".7" fill="#c8640a"/>
-      <circle cx="64"  cy="74" r=".7" fill="#c8640a"/>
-
-      <!-- center node -->
-      <circle cx="50" cy="58" r="1.2" fill="#ff8c00"
-              style="filter:drop-shadow(0 0 1px #ff8c00)"/>
-    </svg>
-
-    <!-- BALTHASAR·2 -->
-    <div class="mp" id="pb">
-      <div class="pc">
-        <div class="pname" id="nb">BALTHASAR·2</div>
-        <div class="psub" id="sb">NAOKO AKAGI · MOTHER</div>
-        <div class="pbody" id="bb"></div>
-      </div>
-    </div>
-
-    <!-- CASPER·3 -->
-    <div class="mp" id="pc">
-      <div class="pc">
-        <div class="pname" id="nc">CASPER·3</div>
-        <div class="psub" id="sc">NAOKO AKAGI · WOMAN</div>
-        <div class="pbody" id="bc"></div>
-      </div>
-    </div>
-
-    <!-- MELCHIOR·1 -->
-    <div class="mp" id="pm">
-      <div class="pc">
-        <div class="pname" id="nm">MELCHIOR·1</div>
-        <div class="psub" id="sm">NAOKO AKAGI · SCIENTIST</div>
-        <div class="pbody" id="bm"></div>
-      </div>
-    </div>
-
-    <!-- MAGI center -->
-    <div id="magi-label">
-      <span class="dot">◆</span>
-      <span class="word">MAGI</span>
-    </div>
-
-  </div>
-
-  <!-- ══ INPUT ══ -->
-  <div class="input-area">
-    <div class="iline">
-      <span class="ilabel">access code:</span>
-      <span class="dots-fill" id="dfill">·····················································</span>
-    </div>
-    <div class="iline">
-      <span class="ilabel">question:</span>
-      <input type="text" id="q" placeholder="INPUT DECISION QUERY..."/>
-      <button class="exec-btn" id="btn" onclick="run()">EXECUTE</button>
-    </div>
-    <div id="err"></div>
-  </div>
-
-  <!-- ══ FOOTER ══ -->
-  <div class="foot">
-    <span>NERV / GEHIRN · PROJECT MAGI</span>
-    <span id="clk">──────────────────────</span>
-    <span>AUTHORIZED ONLY</span>
-  </div>
-
-</div><!-- #frame -->
-
-<script>
-/* ── clock ── */
-!function tick(){
-  document.getElementById('clk').textContent=
-    new Date().toISOString().replace('T',' ').slice(0,19)+' JST';
-  setTimeout(tick,1000);
-}();
-
-/* ── sys code flicker ── */
-!function(){
-  var n=3021,L='ABCDE';
-  setInterval(function(){
-    n+=Math.floor(Math.random()*3+1);
-    document.getElementById('scode').textContent=
-      n+'-'+L[Math.floor(Math.random()*5)];
-  },2200);
-}();
-
-/* ── access code dots ── */
-!function(){
-  var el=document.getElementById('dfill');
-  var c='·∙•◦○';
-  setInterval(function(){
-    var s='';
-    for(var i=0;i<52;i++) s+=c[Math.floor(Math.random()*c.length)];
-    el.textContent=s;
-  },120);
-}();
-
-/* ── typewriter ── */
-function tw(el,text,spd){
-  spd=spd||8;
-  return new Promise(function(done){
-    el.innerHTML='';
-    var i=0;
-    var cur=document.createElement('span');
-    cur.className='caret';
-    el.appendChild(cur);
-    function step(){
-      if(i>=text.length){cur.remove();done();return;}
-      var chunk=text.slice(i,Math.min(i+2,text.length));
-      cur.insertAdjacentText('beforebegin',chunk);
-      i+=chunk.length;
-      // highlight 【...】
-      var h=el.innerHTML;
-      if(h.indexOf('【')>=0){
-        el.innerHTML=h.replace(/(【[^】]*】)/g,'<span class="sh">$1</span>');
-        if(!el.querySelector('.caret')){
-          var c2=document.createElement('span');
-          c2.className='caret';el.appendChild(c2);
-        }
-      }
-      setTimeout(step,spd);
-    }
-    step();
-  });
-}
-
-/* ── panel helpers ── */
-function showText(id){
-  document.getElementById('n'+id).style.display='none';
-  document.getElementById('s'+id).style.display='none';
-  var b=document.getElementById('b'+id);
-  b.style.display='block';
-  return b;
-}
-function resetPanel(id){
-  document.getElementById('n'+id).style.display='';
-  document.getElementById('s'+id).style.display='';
-  var b=document.getElementById('b'+id);
-  b.style.display='none';b.innerHTML='';
-  document.getElementById('p'+id).classList.remove('scanning');
-}
-function setScan(id,on){
-  var el=document.getElementById('p'+id);
-  if(on) el.classList.add('scanning');
-  else el.classList.remove('scanning');
-}
-
-/* ── main ── */
-async function run(){
-  var q=document.getElementById('q').value.trim();
-  var err=document.getElementById('err');
-  err.style.display='none';
-  if(!q){err.textContent='ERROR: NO INPUT DETECTED';err.style.display='block';return;}
-
-  var btn=document.getElementById('btn');
-  btn.disabled=true;
-
-  // reset
-  ['b','c','m'].forEach(resetPanel);
-  document.getElementById('kaiketsu-text').innerHTML='';
-
-  // loading state
-  ['b','m'].forEach(function(id){
-    setScan(id,true);
-    var t=showText(id);
-    t.textContent='ANALYZING...';
-  });
-  setScan('c',true);
-  var ct=showText('c');
-  ct.textContent='PENDING UNIT-01/02...';
-
-  try{
-    var res=await fetch('/api/analyze',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({question:q})
-    });
-    if(!res.ok){var e=await res.json();throw new Error(e.detail||'HTTP '+res.status);}
-    var data=await res.json();
-
-    var bEl=showText('b');
-    var mEl=showText('m');
-    var cEl=showText('c');
-
-    // Phase 1: BALTHASAR + MELCHIOR parallel
-    await Promise.all([
-      tw(bEl, data.balthasar, 7),
-      tw(mEl, data.melchior,  7)
-    ]);
-    setScan('b',false); setScan('m',false);
-
-    // Phase 2: CASPER
-    await tw(cEl, data.casper, 6);
-    setScan('c',false);
-
-    // Phase 3: verdict in 解決 zone
-    await tw(document.getElementById('kaiketsu-text'), data.verdict, 28);
-
-  }catch(ex){
-    err.textContent='SYSTEM ERROR: '+ex.message;
-    err.style.display='block';
-    ['b','c','m'].forEach(resetPanel);
-  }finally{
-    btn.disabled=false;
-  }
-}
-
-/* Enter key */
-document.getElementById('q').addEventListener('keydown',function(e){
-  if(e.key==='Enter'){e.preventDefault();run();}
-});
-</script>
+    <script src="document.js"></script>
 </body>
 </html>
