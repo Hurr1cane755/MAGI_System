@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MAGI SYSTEM — NERV</title>
+  <style>
+    :root {
+      --bg:        #000;
+      --bg2:       #0a0a0a;
+      --bg3:       #0f0f0f;
+      --red:       #ff2800;
+      --red-dim:   #8b1a10;
+      --orange:    #ff6600;
+      --amber:     #ffb300;
+      --green:     #00ff41;
+      --green-dim: #00a82b;
+      --cyan:      #00e5ff;
+      --magenta:   #ff00cc;
+      --yellow:    #ffe600;
+      --dim:       #333;
+      --text:      #c8d0c8;
+      --font:      'Courier New', Courier, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      min-height: 100vh;
+      padding: 24px 16px;
+      overflow-x: hidden;
+    }
+
+    /* scanline overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,.18) 2px,
+        rgba(0,0,0,.18) 4px
+      );
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; }
+
+    /* ── ASCII LOGO ── */
+    .logo-wrap {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .logo {
+      display: inline-block;
+      color: var(--red);
+      font-size: clamp(5px, 1.1vw, 11px);
+      line-height: 1.2;
+      text-shadow: 0 0 8px var(--red);
+      white-space: pre;
+      letter-spacing: 0;
+    }
+    .subtitle {
+      color: var(--red-dim);
+      font-size: 11px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-top: 6px;
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--red-dim);
+      margin: 16px 0;
+      opacity: .5;
+    }
+
+    /* ── STATUS BAR ── */
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--dim);
+      margin-bottom: 20px;
+      padding: 0 2px;
+    }
+    .status-bar .mode {
+      color: var(--amber);
+      animation: blink 2s step-end infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* ── INPUT SECTION ── */
+    .input-section {
+      background: var(--bg2);
+      border: 1px solid var(--red-dim);
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      position: relative;
+    }
+    .input-section::before {
+      content: '▶ DECISION INPUT';
+      position: absolute;
+      top: -9px; left: 12px;
+      background: var(--bg);
+      padding: 0 6px;
+      font-size: 10px;
+      color: var(--red);
+      letter-spacing: 2px;
+    }
+    .input-row {
+      display: flex;
+      gap: 10px;
+      align-items: stretch;
+    }
+    textarea {
+      flex: 1;
+      background: #000;
+      border: 1px solid var(--dim);
+      color: var(--green);
+      font-family: var(--font);
+      font-size: 14px;
+      padding: 10px 12px;
+      resize: vertical;
+      min-height: 60px;
+      outline: none;
+      transition: border-color .2s;
+      caret-color: var(--green);
+    }
+    textarea:focus { border-color: var(--green); }
+    textarea::placeholder { color: #2a4a2a; }
+
+    button#activate {
+      background: var(--red);
+      color: #fff;
+      border: none;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      padding: 0 20px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: background .2s, box-shadow .2s;
+      white-space: nowrap;
+    }
+    button#activate:hover:not(:disabled) {
+      background: #ff5500;
+      box-shadow: 0 0 12px var(--red);
+    }
+    button#activate:disabled {
+      background: var(--red-dim);
+      cursor: not-allowed;
+    }
+
+    /* ── ANALYSIS GRID ── */
+    .panels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 600px) {
+      .panels { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: var(--bg2);
+      border: 1px solid var(--dim);
+      padding: 14px 16px;
+      min-height: 180px;
+      position: relative;
+      transition: border-color .3s;
+    }
+    .panel.active  { border-color: var(--green-dim); }
+    .panel.done    { border-color: inherit; }
+
+    .panel-header {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--dim);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .panel-name  { font-weight: bold; }
+    .panel-role  { opacity: .5; font-size: 9px; }
+    .panel-tag   {
+      font-size: 9px;
+      padding: 1px 5px;
+      border: 1px solid currentColor;
+      opacity: .6;
+    }
+
+    .panel-melchior .panel-name  { color: var(--cyan); }
+    .panel-melchior .panel-tag   { color: var(--cyan); }
+    .panel-balthasar .panel-name { color: var(--magenta); }
+    .panel-balthasar .panel-tag  { color: var(--magenta); }
+
+    .panel-body {
+      font-size: 12px;
+      line-height: 1.65;
+      color: var(--text);
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .panel-body .section-head {
+      color: var(--amber);
+      font-weight: bold;
+    }
+
+    /* ── CASPER PANEL (full width) ── */
+    .panel-casper {
+      grid-column: 1 / -1;
+      border-color: var(--yellow);
+    }
+    .panel-casper .panel-name { color: var(--yellow); }
+    .panel-casper .panel-tag  { color: var(--yellow); }
+
+    /* ── VERDICT BOX ── */
+    #verdict-box {
+      display: none;
+      border: 2px solid var(--red);
+      background: rgba(255,40,0,.07);
+      padding: 16px 20px;
+      position: relative;
+      margin-top: 8px;
+      box-shadow: 0 0 20px rgba(255,40,0,.2);
+    }
+    #verdict-box::before {
+      content: '◆ MAGI 最终裁决';
+      position: absolute;
+      top: -10px; left: 14px;
+      background: var(--bg);
+      padding: 0 8px;
+      font-size: 10px;
+      color: var(--red);
+      letter-spacing: 3px;
+    }
+    #verdict-text {
+      color: var(--red);
+      font-size: 16px;
+      font-weight: bold;
+      text-shadow: 0 0 8px var(--red);
+      text-align: center;
+      letter-spacing: 1px;
+    }
+
+    /* ── LOADING INDICATOR ── */
+    .dot-loader { display: inline-block; }
+    .dot-loader::after {
+      content: '';
+      animation: dots 1.2s steps(4, end) infinite;
+    }
+    @keyframes dots {
+      0%   { content: ''; }
+      25%  { content: '.'; }
+      50%  { content: '..'; }
+      75%  { content: '...'; }
+      100% { content: ''; }
+    }
+
+    /* ── CURSOR ── */
+    .cursor {
+      display: inline-block;
+      width: 8px; height: 13px;
+      background: var(--green);
+      animation: cursor-blink .7s step-end infinite;
+      vertical-align: text-bottom;
+      margin-left: 1px;
+    }
+    @keyframes cursor-blink { 50% { opacity: 0; } }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      font-size: 10px;
+      color: var(--dim);
+      margin-top: 32px;
+      letter-spacing: 2px;
+    }
+
+    /* ── ERROR ── */
+    .error-msg {
+      color: var(--red);
+      font-size: 12px;
+      margin-top: 8px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- LOGO -->
+  <div class="logo-wrap">
+    <pre class="logo">
+ ███╗   ███╗ █████╗  ██████╗ ██╗      ██╗     ██╗███╗   ██╗██╗  ██╗
+ ████╗ ████║██╔══██╗██╔════╝ ██║      ██║     ██║████╗  ██║██║ ██╔╝
+ ██╔████╔██║███████║██║  ███╗██║█████╗██║     ██║██╔██╗ ██║█████╔╝
+ ██║╚██╔╝██║██╔══██║██║   ██║██║╚════╝██║     ██║██║╚██╗██║██╔═██╗
+ ██║ ╚═╝ ██║██║  ██║╚██████╔╝██║      ███████╗██║██║ ╚████║██║  ██╗
+ ╚═╝     ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝      ╚══════╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝</pre>
+    <div class="subtitle">Multi-Agent General Intelligence — Decision System</div>
+  </div>
+
+  <hr class="divider" />
+
+  <div class="status-bar">
+    <span>NERV HQ / GeoFront Terminal</span>
+    <span class="mode" id="mode-label">⚠ MOCK MODE</span>
+    <span id="clock"></span>
+  </div>
+
+  <!-- INPUT -->
+  <div class="input-section">
+    <div class="input-row">
+      <textarea id="question" rows="2" placeholder="输入决策问题，例如：我该辞职创业吗？"></textarea>
+      <button id="activate" onclick="activate()">ACTIVATE<br>MAGI</button>
+    </div>
+    <div class="error-msg" id="error-msg"></div>
+  </div>
+
+  <!-- PANELS -->
+  <div class="panels" id="panels" style="display:none">
+
+    <div class="panel panel-melchior" id="panel-melchior">
+      <div class="panel-header">
+        <span>
+          <span class="panel-name">MELCHIOR-1</span>
+          <span class="panel-role"> / 赤木直子·科学家</span>
+        </span>
+        <span class="panel-tag">UNIT-01</span>
+      </div>
+      <div class="panel-body" id="body-melchior"><span class="dot-loader">分析中</span></div>
+    </div>
+
+    <div class="panel panel-balthasar" id="panel-balthasar">
+      <div class="panel-header">
+        <span>
+          <span class="panel-name">BALTHASAR-2</span>
+          <span class="panel-role"> / 赤木直子·母亲</span>
+        </span>
+        <span class="panel-tag">UNIT-02</span>
+      </div>
+      <div class="panel-body" id="body-balthasar"><span class="dot-loader">分析中</span></div>
+    </div>
+
+    <div class="panel panel-casper" id="panel-casper">
+      <div class="panel-header">
+        <span>
+          <span class="panel-name">CASPER-3</span>
+          <span class="panel-role"> / 赤木直子·女人</span>
+        </span>
+        <span class="panel-tag">UNIT-03 · ARBITER</span>
+      </div>
+      <div class="panel-body" id="body-casper"><span class="dot-loader">等待 UNIT-01/02 完成</span></div>
+    </div>
+
+  </div>
+
+  <!-- VERDICT -->
+  <div id="verdict-box">
+    <div id="verdict-text"></div>
+  </div>
+
+  <footer>NERV / PROJECT MAGI — AUTHORIZED PERSONNEL ONLY — ©GAINAX</footer>
+</div>
+
+<script>
+  // 时钟
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').textContent =
+      now.toISOString().replace('T',' ').slice(0,19) + ' UTC';
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // 检测运行模式
+  fetch('/api/health').then(r => r.json()).then(d => {
+    const el = document.getElementById('mode-label');
+    if (!d.mock_mode) {
+      el.textContent = '● LIVE MODE';
+      el.style.color = '#00ff41';
+      el.style.animation = 'none';
+    }
+  }).catch(() => {});
+
+  // 逐字打印
+  function typewrite(el, text, speed = 8) {
+    return new Promise(resolve => {
+      el.innerHTML = '';
+      let i = 0;
+      const cursor = document.createElement('span');
+      cursor.className = 'cursor';
+      el.appendChild(cursor);
+
+      const tick = () => {
+        if (i >= text.length) { cursor.remove(); resolve(); return; }
+        const chunk = text.slice(i, i + 3);
+        cursor.insertAdjacentText('beforebegin', chunk);
+        i += 3;
+        // 高亮章节标题
+        el.innerHTML = el.innerHTML.replace(
+          /(【[^】]+】)/g,
+          '<span class="section-head">$1</span>'
+        );
+        // 重新附加 cursor（innerHTML 替换后丢失了）
+        if (!el.querySelector('.cursor')) {
+          const c = document.createElement('span');
+          c.className = 'cursor';
+          el.appendChild(c);
+        }
+        setTimeout(tick, speed);
+      };
+      tick();
+    });
+  }
+
+  async function activate() {
+    const question = document.getElementById('question').value.trim();
+    const errEl = document.getElementById('error-msg');
+    errEl.style.display = 'none';
+
+    if (!question) {
+      errEl.textContent = '错误：请输入决策问题';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    const btn = document.getElementById('activate');
+    btn.disabled = true;
+
+    // 重置 UI
+    document.getElementById('panels').style.display = 'grid';
+    document.getElementById('verdict-box').style.display = 'none';
+    ['melchior','balthasar','casper'].forEach(id => {
+      const body = document.getElementById('body-' + id);
+      const panel = document.getElementById('panel-' + id);
+      body.innerHTML = id === 'casper'
+        ? '<span class="dot-loader">等待 UNIT-01/02 完成</span>'
+        : '<span class="dot-loader">分析中</span>';
+      panel.className = panel.className.replace(' done','').replace(' active','') + ' active';
+    });
+
+    try {
+      const res = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.detail || `HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      // 依次打印（MELCHIOR & BALTHASAR 同时，CASPER 最后）
+      const melchiorEl  = document.getElementById('body-melchior');
+      const balthasarEl = document.getElementById('body-balthasar');
+      const casperEl    = document.getElementById('body-casper');
+
+      await Promise.all([
+        typewrite(melchiorEl,  data.melchior),
+        typewrite(balthasarEl, data.balthasar),
+      ]);
+
+      document.getElementById('panel-melchior').classList.replace('active','done');
+      document.getElementById('panel-balthasar').classList.replace('active','done');
+
+      // CASPER 开始
+      document.getElementById('panel-casper').classList.add('active');
+      await typewrite(casperEl, data.casper, 6);
+      document.getElementById('panel-casper').classList.replace('active','done');
+
+      // 最终裁决
+      const verdictBox  = document.getElementById('verdict-box');
+      const verdictText = document.getElementById('verdict-text');
+      verdictBox.style.display = 'block';
+      verdictText.textContent = '';
+      await typewrite(verdictText, '▸ ' + data.verdict, 30);
+
+    } catch (e) {
+      errEl.textContent = '系统错误：' + e.message;
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // Enter 提交（Shift+Enter 换行）
+  document.getElementById('question').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); activate(); }
+  });
+</script>
+</body>
+</html>
