@@ -23,7 +23,7 @@ class Melchior(BaseAgent):
 
         genai.configure(api_key=self._api_key)
         model = genai.GenerativeModel(
-            model_name="gemini-1.5-pro",
+            model_name="gemini-2.0-flash",
             system_instruction=SYSTEM_PROMPT,
         )
         response = model.generate_content(question)
