@@ -5,737 +5,524 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>MAGI SYSTEM — NERV</title>
 <style>
-/* ═══════════════════════════════════════════════
-   RESET & BASE
-═══════════════════════════════════════════════ */
+/* ─── RESET ─────────────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0}
 
 :root{
-  --bg:        #0a0a1a;
-  --bg2:       #080818;
-  --bg3:       #0d0d28;
-  --orange:    #ff6600;
-  --orange2:   #ffaa00;
-  --yellow:    #ffe000;
-  --cyan:      #00ffff;
-  --cyan-dim:  #007799;
-  --red:       #ff0000;
-  --red2:      #cc2200;
-  --green:     #00ff88;
-  --green-dim: #004433;
-  --white:     #e8eaf0;
-  --dim:       #223;
-  --font:      'Courier New',Courier,monospace;
-  --glow-o:    0 0 6px #ff6600, 0 0 14px #ff660066;
-  --glow-y:    0 0 6px #ffe000, 0 0 14px #ffe00066;
-  --glow-c:    0 0 6px #00ffff, 0 0 14px #00ffff55;
-  --glow-r:    0 0 8px #ff0000, 0 0 20px #ff000088;
+  --or:   #ff8c00;   /* main orange */
+  --or2:  #c8640a;   /* border/dim orange */
+  --cy:   #5bc8d2;   /* panel cyan */
+  --bg:   #000000;
+  --font: 'Courier New',Courier,monospace;
 }
 
-html,body{
-  width:100%;min-height:100vh;
+html{background:#0e0e0e;min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font);padding:18px}
+
+/* ─── OUTER FRAME (double border) ───────────── */
+#frame{
+  width:100%;max-width:960px;
   background:var(--bg);
-  color:var(--white);
-  font-family:var(--font);
-  overflow-x:hidden;
-}
-
-/* ═══════════════════════════════════════════════
-   CRT OVERLAY  (scanlines + vignette + flicker)
-═══════════════════════════════════════════════ */
-body::before{                   /* scanlines */
-  content:'';
-  position:fixed;inset:0;
-  background:repeating-linear-gradient(
-    0deg,
-    transparent 0px,
-    transparent 3px,
-    rgba(0,0,8,.35) 3px,
-    rgba(0,0,8,.35) 4px
-  );
-  pointer-events:none;z-index:9000;
-}
-body::after{                    /* vignette */
-  content:'';
-  position:fixed;inset:0;
-  background:radial-gradient(ellipse at center,
-    transparent 55%, rgba(0,0,10,.85) 100%);
-  pointer-events:none;z-index:9001;
-}
-/* slow flicker */
-@keyframes crt-flicker{
-  0%,100%{opacity:1}
-  92%{opacity:1}
-  93%{opacity:.97}
-  94%{opacity:1}
-  96%{opacity:.98}
-}
-body{animation:crt-flicker 8s ease-in-out infinite}
-
-/* ═══════════════════════════════════════════════
-   SCROLLING SCANLINE (background layer)
-═══════════════════════════════════════════════ */
-#scanmove{
-  position:fixed;inset:0;
-  background:linear-gradient(
-    180deg,
-    transparent 0%,
-    rgba(255,102,0,.028) 50%,
-    transparent 100%
-  );
-  background-size:100% 80px;
-  animation:scanroll 4s linear infinite;
-  pointer-events:none;z-index:1;
-}
-@keyframes scanroll{from{background-position:0 -80px}to{background-position:0 80px}}
-
-/* ═══════════════════════════════════════════════
-   LAYOUT SHELL
-═══════════════════════════════════════════════ */
-#app{
-  position:relative;z-index:10;
-  max-width:1100px;margin:0 auto;
-  padding:16px 14px 40px;
-}
-
-/* ═══════════════════════════════════════════════
-   HEADER
-═══════════════════════════════════════════════ */
-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  border-bottom:1px solid #ff660055;
-  padding-bottom:10px;
-  margin-bottom:14px;
-  gap:12px;
-}
-
-/* NERV star-of-david */
-.nerv-logo{
-  flex-shrink:0;
-  width:52px;height:52px;
-  position:relative;
-  filter:drop-shadow(0 0 6px #ff6600);
-}
-.nerv-logo svg{width:100%;height:100%}
-
-.header-center{flex:1;text-align:center}
-.magi-title{
-  font-size:clamp(14px,2.6vw,26px);
-  letter-spacing:8px;
-  color:var(--orange2);
-  text-shadow:var(--glow-o);
-  text-transform:uppercase;
-}
-.magi-sub{
-  font-size:10px;letter-spacing:4px;
-  color:#ff660099;margin-top:2px;
-}
-
-/* status pills */
-.status-row{
-  display:flex;flex-direction:column;
-  gap:4px;align-items:flex-end;
-  font-size:9px;letter-spacing:1px;
-}
-.pill{
-  display:flex;align-items:center;gap:5px;
-  padding:2px 8px;
-  border:1px solid #ff660044;
-  background:#0d0d28;
-  color:#ff6600aa;
-}
-.led{
-  width:7px;height:7px;border-radius:50%;
-  flex-shrink:0;
-}
-.led-green{background:#00ff88;box-shadow:0 0 6px #00ff88}
-.led-red{background:#ff0000;box-shadow:0 0 6px #ff0000;
-  animation:led-blink 2s step-end infinite}
-.led-orange{background:#ff6600;box-shadow:0 0 6px #ff6600}
-@keyframes led-blink{50%{opacity:0}}
-
-/* ═══════════════════════════════════════════════
-   TICKER BAR
-═══════════════════════════════════════════════ */
-.ticker{
-  background:#080818;
-  border-top:1px solid #ff660033;
-  border-bottom:1px solid #ff660033;
-  overflow:hidden;height:22px;
-  margin-bottom:14px;
+  border:2px solid var(--or2);
+  /* second border via box-shadow */
+  box-shadow:
+    0 0 0 5px #000,
+    0 0 0 7px var(--or2),
+    0 0 28px #c8640a44;
   position:relative;
 }
-.ticker-inner{
-  display:flex;gap:0;
-  white-space:nowrap;
-  animation:ticker 28s linear infinite;
-}
-.ticker-inner span{
-  font-size:10px;letter-spacing:2px;
-  color:#ff660088;padding:4px 40px 4px 0;
-}
-.ticker-inner span.hi{color:var(--orange2);opacity:.9}
-@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-/* ═══════════════════════════════════════════════
-   INPUT TERMINAL
-═══════════════════════════════════════════════ */
-.terminal-box{
-  background:var(--bg2);
-  border:1px solid #ff660066;
-  clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,0 100%);
-  padding:14px 18px;
-  margin-bottom:16px;
-  position:relative;
+/* ─── TOP BANNER ─────────────────────────────── */
+.banner{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  border-bottom:2px solid var(--or2);
 }
-.terminal-box::before{
-  content:'▶ DECISION INPUT TERMINAL';
+.banner-left,.banner-right{padding:10px 14px}
+.banner-left{border-right:1px solid var(--or2)}
+
+.kanji{
+  font-size:clamp(18px,3vw,30px);
+  font-weight:bold;
+  color:var(--or);
+  letter-spacing:6px;
   display:block;
-  font-size:9px;letter-spacing:3px;
-  color:var(--orange);
-  margin-bottom:8px;
-  text-shadow:var(--glow-o);
+  margin-bottom:6px;
+  text-shadow:0 0 8px #ff8c0066;
 }
-.input-row{display:flex;gap:10px;align-items:stretch}
-textarea{
-  flex:1;
-  background:#000014;
-  border:1px solid #ff660055;
-  color:var(--orange2);
-  font-family:var(--font);font-size:13px;
-  padding:9px 12px;resize:vertical;min-height:54px;
-  outline:none;caret-color:var(--orange2);
-  transition:border-color .2s,box-shadow .2s;
+.sys-info{
+  color:var(--or2);font-size:10px;
+  line-height:1.75;letter-spacing:.5px;
 }
-textarea:focus{border-color:var(--orange);box-shadow:var(--glow-o)}
-textarea::placeholder{color:#331100}
+.sys-info .hi{color:var(--or)}
 
-.activate-btn{
-  position:relative;
-  background:transparent;
-  border:none;cursor:pointer;
-  padding:0;flex-shrink:0;width:110px;
+.banner-right{
+  display:flex;flex-direction:column;align-items:flex-end;gap:4px;
 }
-.activate-btn .btn-inner{
+.jouhou-btn{
+  border:1px solid var(--or2);color:var(--or2);
+  font-family:var(--font);font-size:11px;
+  letter-spacing:2px;padding:3px 10px;
+  cursor:pointer;background:none;
+  transition:all .2s;
+}
+.jouhou-btn:hover{background:#1a0a00;color:var(--or);border-color:var(--or)}
+
+/* verdict zone */
+#kaiketsu-zone{
+  flex:1;width:100%;
+  border:1px solid #c8640a44;
+  padding:6px 8px;
+  min-height:52px;
+  font-size:11px;
+  color:var(--or);
+  line-height:1.6;
+  margin-top:4px;
+  background:#05010066;
+  position:relative;overflow:hidden;
+}
+#kaiketsu-zone::before{
+  content:'解決出力';
+  position:absolute;top:2px;left:5px;
+  font-size:8px;color:#c8640a55;letter-spacing:1px;
+}
+#kaiketsu-text{margin-top:12px;min-height:1em}
+
+/* ─── PANELS AREA ────────────────────────────── */
+#panels-area{
+  position:relative;
+  width:100%;
+  /* Maintain aspect ratio ~16:9 ish */
+  padding-bottom:46%;
+  background:var(--bg);
+  overflow:hidden;
+  border-bottom:2px solid var(--or2);
+}
+
+/* SVG connector layer (z=1) */
+#lines-svg{
+  position:absolute;inset:0;
   width:100%;height:100%;
-  background:linear-gradient(135deg,#330800,#1a0500);
-  border:1px solid var(--red);
-  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
+  z-index:1;pointer-events:none;
+}
+
+/* Panel common (z=2) */
+.mp{
+  position:absolute;z-index:2;
+  background:var(--cy);
+  overflow:hidden;
+  transition:filter .3s;
+}
+.mp.scanning{filter:brightness(1.3)}
+
+/* BALTHASAR·2 — top center, wide-top trapezoid */
+#pb{
+  width:42%;height:44%;
+  left:29%;top:2%;
+  clip-path:polygon(10% 0%,90% 0%,76% 100%,24% 100%);
+}
+
+/* CASPER·3 — bottom left, right-leaning trapezoid */
+#pc{
+  width:40%;height:44%;
+  left:0%;top:52%;
+  clip-path:polygon(0% 0%,90% 13%,90% 87%,0% 100%);
+}
+
+/* MELCHIOR·1 — bottom right, left-leaning trapezoid */
+#pm{
+  width:40%;height:44%;
+  right:0%;top:52%;
+  clip-path:polygon(10% 13%,100% 0%,100% 100%,10% 87%);
+}
+
+/* panel inner layout */
+.pc{
+  width:100%;height:100%;
   display:flex;flex-direction:column;
   align-items:center;justify-content:center;
-  gap:3px;padding:8px;
-  transition:background .2s,box-shadow .2s;
+  padding:10px 14px;
 }
-.activate-btn:hover:not(:disabled) .btn-inner{
-  background:linear-gradient(135deg,#660d00,#330800);
-  box-shadow:var(--glow-r);
+.pname{
+  color:#000;font-size:clamp(11px,2.2vw,20px);
+  font-weight:bold;letter-spacing:2px;
+  text-align:center;line-height:1.3;
 }
-.activate-btn:disabled .btn-inner{opacity:.45;cursor:not-allowed}
-.btn-label{
-  color:var(--red);font-size:11px;font-weight:bold;
-  letter-spacing:1px;text-shadow:var(--glow-r);
-  line-height:1.3;text-align:center;
+.psub{
+  color:#003a3d;font-size:clamp(7px,1vw,9px);
+  letter-spacing:1px;margin-top:3px;text-align:center;
 }
-.btn-sub{color:#ff333388;font-size:9px;letter-spacing:1px}
-
-/* ═══════════════════════════════════════════════
-   THREE AGENT PANELS
-═══════════════════════════════════════════════ */
-.panels-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  gap:12px;
-  margin-bottom:14px;
-}
-@media(max-width:700px){
-  .panels-grid{grid-template-columns:1fr}
-}
-
-.agent-panel{
-  background:var(--bg2);
-  border:1px solid;
-  position:relative;
-  overflow:hidden;
-  min-height:220px;
-  clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,20px 100%,0 calc(100% - 20px));
-  transition:box-shadow .4s;
-}
-/* Corner accent */
-.agent-panel::after{
-  content:'';
-  position:absolute;
-  top:0;right:0;
-  width:20px;height:20px;
-  border-bottom:1px solid;
-  border-left:1px solid;
-  border-color:inherit;
-}
-
-.panel-melchior{
-  border-color:#ff6600aa;
-  --accent:var(--orange);
-  --glow:var(--glow-o);
-}
-.panel-melchior.panel-active{box-shadow:var(--glow-o),inset 0 0 30px #ff660011}
-.panel-melchior .panel-head{background:linear-gradient(90deg,#ff660022,transparent)}
-.panel-melchior .section-tag{color:var(--orange);text-shadow:var(--glow-o)}
-
-.panel-balthasar{
-  border-color:#ffe000aa;
-  --accent:var(--yellow);
-  --glow:var(--glow-y);
-}
-.panel-balthasar.panel-active{box-shadow:var(--glow-y),inset 0 0 30px #ffe00011}
-.panel-balthasar .panel-head{background:linear-gradient(90deg,#ffe00022,transparent)}
-.panel-balthasar .section-tag{color:var(--yellow);text-shadow:var(--glow-y)}
-
-.panel-casper{
-  border-color:#00ffff99;
-  --accent:var(--cyan);
-  --glow:var(--glow-c);
-}
-.panel-casper.panel-active{box-shadow:var(--glow-c),inset 0 0 30px #00ffff0d}
-.panel-casper .panel-head{background:linear-gradient(90deg,#00ffff18,transparent)}
-.panel-casper .section-tag{color:var(--cyan);text-shadow:var(--glow-c)}
-
-/* scan-in animation */
-@keyframes scan-in{
-  from{clip-path:polygon(0 0,0 0,0 0,0 0,0 0,0 0);opacity:0}
-  to{clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,20px 100%,0 calc(100% - 20px));opacity:1}
-}
-.panel-scanning{animation:scan-in .5s ease-out forwards}
-
-.panel-head{
-  padding:8px 14px 6px;
-  border-bottom:1px solid;
-  border-color:inherit;
-  display:flex;justify-content:space-between;align-items:center;
-}
-.panel-name{
-  font-size:12px;font-weight:bold;letter-spacing:2px;
-  color:var(--accent);text-shadow:var(--glow);
-}
-.panel-unit{
-  font-size:9px;letter-spacing:1px;
-  color:var(--accent);opacity:.55;
-  border:1px solid;border-color:inherit;
-  padding:1px 5px;
-}
-.panel-role{
-  font-size:9px;letter-spacing:1px;color:#556;
-  margin-top:1px;
-}
-
-/* scan progress bar */
-.scan-bar{
-  height:2px;
-  background:linear-gradient(90deg,var(--accent),transparent);
-  width:0%;transition:width .4s;
-  opacity:.7;
-}
-.panel-active .scan-bar{width:100%}
-
-.panel-body{
-  padding:10px 14px 14px;
-  font-size:11px;line-height:1.7;
-  color:#99a8b8;
-  white-space:pre-wrap;word-break:break-all;
-  min-height:160px;
-}
-
-/* section headers in text */
-.sh{font-weight:bold}
-.panel-melchior  .sh{color:var(--orange)}
-.panel-balthasar .sh{color:var(--yellow)}
-.panel-casper    .sh{color:var(--cyan)}
-
-/* idle placeholder */
-.idle-text{
-  color:#223344;
-  font-size:10px;letter-spacing:1px;
-  padding-top:20px;text-align:center;
-}
-
-/* ── dots loader ── */
-.dots::after{
-  content:'';
-  animation:ldots 1.2s steps(4,end) infinite;
-}
-@keyframes ldots{
-  0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}
-}
-
-/* ── cursor ── */
-.caret{
-  display:inline-block;
-  width:7px;height:12px;
-  vertical-align:text-bottom;
-  margin-left:1px;
-}
-.panel-melchior  .caret{background:var(--orange);box-shadow:var(--glow-o)}
-.panel-balthasar .caret{background:var(--yellow);box-shadow:var(--glow-y)}
-.panel-casper    .caret{background:var(--cyan);box-shadow:var(--glow-c)}
-.caret{animation:caretblink .65s step-end infinite}
-@keyframes caretblink{50%{opacity:0}}
-
-/* ═══════════════════════════════════════════════
-   VERDICT
-═══════════════════════════════════════════════ */
-#verdict-wrap{
+.pbody{
   display:none;
-  border:2px solid var(--red);
-  background:radial-gradient(ellipse at center,#1a000066,#00000099);
-  padding:16px 22px;
-  position:relative;
-  clip-path:polygon(0 0,calc(100% - 24px) 0,100% 24px,100% 100%,24px 100%,0 calc(100% - 24px));
+  color:#001a1c;font-size:clamp(8px,1.1vw,10.5px);
+  line-height:1.55;white-space:pre-wrap;
+  word-break:break-all;overflow-y:auto;
+  width:100%;height:100%;padding:4px 2px;
 }
-#verdict-wrap.alert-on{
-  animation:verdict-alert 1s ease-in-out 3;
-}
-@keyframes verdict-alert{
-  0%,100%{box-shadow:var(--glow-r)}
-  50%{box-shadow:0 0 40px #ff0000,0 0 80px #ff000066}
-}
-.verdict-label{
-  font-size:9px;letter-spacing:4px;
-  color:var(--red);opacity:.7;
-  margin-bottom:6px;
-}
-#verdict-text{
-  font-size:clamp(13px,2vw,18px);
-  font-weight:bold;
-  color:var(--red);
-  text-shadow:var(--glow-r);
-  letter-spacing:1px;
-  text-align:center;
-  min-height:1.5em;
-}
-.verdict-divider{
-  height:1px;
-  background:linear-gradient(90deg,transparent,var(--red),transparent);
-  margin:8px 0;
-}
+.pbody .sh{color:#003a3d;font-weight:bold}
 
-/* ═══════════════════════════════════════════════
-   ERROR
-═══════════════════════════════════════════════ */
+/* MAGI center label (z=3) */
+#magi-label{
+  position:absolute;z-index:3;
+  left:50%;top:50%;transform:translate(-50%,-52%);
+  text-align:center;pointer-events:none;
+}
+#magi-label .dot{
+  color:var(--or);font-size:clamp(10px,1.5vw,16px);
+  text-shadow:0 0 8px var(--or);display:block;
+  animation:mlblink 3s ease-in-out infinite;
+}
+#magi-label .word{
+  color:var(--or);font-size:clamp(9px,1.2vw,13px);
+  font-weight:bold;letter-spacing:3px;
+  text-shadow:0 0 8px var(--or);
+}
+@keyframes mlblink{0%,100%{opacity:1}50%{opacity:.55}}
+
+/* ─── INPUT AREA ─────────────────────────────── */
+.input-area{padding:11px 14px;background:var(--bg)}
+
+.iline{
+  display:flex;align-items:center;
+  gap:8px;margin-bottom:9px;
+  font-size:11px;color:var(--or);
+}
+.ilabel{
+  min-width:100px;letter-spacing:1px;
+  flex-shrink:0;
+}
+.dots-fill{
+  flex:1;color:#c8640a55;letter-spacing:4px;
+  font-size:13px;overflow:hidden;white-space:nowrap;
+  user-select:none;
+}
+input[type=text]{
+  flex:1;background:var(--bg);
+  border:none;border-bottom:1px solid var(--or2);
+  color:var(--or);font-family:var(--font);
+  font-size:11px;padding:3px 6px;
+  outline:none;letter-spacing:1px;
+  transition:border-color .2s;
+  caret-color:var(--or);
+}
+input[type=text]:focus{border-bottom-color:var(--or)}
+input[type=text]::placeholder{color:#2a0d00}
+
+.exec-btn{
+  background:var(--bg);border:1px solid var(--or2);
+  color:var(--or2);font-family:var(--font);
+  font-size:10px;letter-spacing:2px;
+  padding:4px 14px;cursor:pointer;
+  white-space:nowrap;flex-shrink:0;
+  transition:all .2s;
+}
+.exec-btn:hover:not(:disabled){
+  background:#150700;color:var(--or);
+  border-color:var(--or);
+  box-shadow:0 0 8px #ff8c0055;
+}
+.exec-btn:disabled{opacity:.35;cursor:not-allowed}
+
 #err{
-  display:none;
-  color:var(--red);font-size:11px;
-  margin-top:7px;letter-spacing:1px;
-  text-shadow:var(--glow-r);
+  display:none;color:#ff2200;
+  font-size:10px;letter-spacing:1px;margin-top:5px;
 }
 
-/* ═══════════════════════════════════════════════
-   FOOTER
-═══════════════════════════════════════════════ */
-footer{
-  text-align:center;
-  font-size:9px;letter-spacing:3px;
-  color:#223344;margin-top:28px;
+/* ─── FOOTER ─────────────────────────────────── */
+.foot{
+  border-top:1px solid var(--or2);
+  padding:4px 12px;
+  display:flex;justify-content:space-between;
+  font-size:9px;color:#c8640a55;letter-spacing:1px;
 }
 
-/* ═══════════════════════════════════════════════
-   MISC HELPERS
-═══════════════════════════════════════════════ */
-.mono{font-family:var(--font)}
+/* ─── CARET ──────────────────────────────────── */
+.caret{
+  display:inline-block;width:6px;
+  background:#001a1c;
+  animation:cblink .65s step-end infinite;
+  vertical-align:text-bottom;height:1em;margin-left:1px;
+}
+@keyframes cblink{50%{opacity:0}}
+
+/* verdict area caret */
+#kaiketsu-text .caret{background:var(--or)}
+
+/* ─── SCAN-IN ANIMATION ──────────────────────── */
+@keyframes scanin{
+  from{clip-path:polygon(50% 50%,50% 50%,50% 50%,50% 50%);opacity:0}
+  to{opacity:1}
+}
+#pb.scanning{animation:scanin-b .5s ease-out forwards}
+#pc.scanning{animation:scanin-c .5s ease-out forwards}
+#pm.scanning{animation:scanin-m .5s ease-out forwards}
+
+@keyframes scanin-b{
+  from{clip-path:polygon(50% 50%,50% 50%,50% 50%,50% 50%);opacity:0}
+  to{clip-path:polygon(10% 0%,90% 0%,76% 100%,24% 100%);opacity:1}
+}
+@keyframes scanin-c{
+  from{clip-path:polygon(45% 50%,45% 50%,45% 50%,45% 50%);opacity:0}
+  to{clip-path:polygon(0% 0%,90% 13%,90% 87%,0% 100%);opacity:1}
+}
+@keyframes scanin-m{
+  from{clip-path:polygon(55% 50%,55% 50%,55% 50%,55% 50%);opacity:0}
+  to{clip-path:polygon(10% 13%,100% 0%,100% 100%,10% 87%);opacity:1}
+}
 </style>
 </head>
 <body>
-<div id="scanmove"></div>
-<div id="app">
+<div id="frame">
 
-<!-- ════════════ HEADER ════════════ -->
-<header>
-  <!-- NERV Hexagram logo (SVG) -->
-  <div class="nerv-logo">
-    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <!-- star of david outline -->
-      <polygon points="50,4 93,28 93,72 50,96 7,72 7,28"
-               fill="none" stroke="#ff6600" stroke-width="2" opacity=".4"/>
-      <polygon points="50,15 85,34 85,66 50,85 15,66 15,34"
-               fill="none" stroke="#ff6600" stroke-width="1" opacity=".25"/>
-      <!-- two overlapping triangles -->
-      <polygon points="50,10 88,70 12,70"
-               fill="#ff660018" stroke="#ff6600" stroke-width="1.5"/>
-      <polygon points="50,90 12,30 88,30"
-               fill="#ff660012" stroke="#ffaa00" stroke-width="1.5"/>
-      <!-- center -->
-      <circle cx="50" cy="50" r="8" fill="#ff6600" opacity=".8"/>
-      <circle cx="50" cy="50" r="5" fill="#ffaa00"/>
-      <!-- NERV text -->
-      <text x="50" y="54" text-anchor="middle"
-            font-family="Courier New" font-size="6" font-weight="bold"
-            fill="#000" letter-spacing="0.5">NERV</text>
+  <!-- ══ TOP BANNER ══ -->
+  <div class="banner">
+    <div class="banner-left">
+      <span class="kanji">質問</span>
+      <div class="sys-info">
+CODE: <span class="hi" id="scode">3021-A</span><br>
+FILE: <span class="hi">MAGI_SYS</span><br>
+EXTENTION: <span class="hi">3023</span><br>
+EX_MODE: <span class="hi">OFF</span><br>
+PRIORITY: <span class="hi">AAA</span>
+      </div>
+    </div>
+    <div class="banner-right">
+      <span class="kanji" style="text-align:right">解決</span>
+      <button class="jouhou-btn">情報</button>
+      <div id="kaiketsu-zone">
+        <div id="kaiketsu-text"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PANELS ══ -->
+  <div id="panels-area">
+
+    <!-- SVG connector lines -->
+    <svg id="lines-svg" viewBox="0 0 100 100" preserveAspectRatio="none"
+         xmlns="http://www.w3.org/2000/svg">
+
+      <!-- outer triangle -->
+      <line x1="50"  y1="46" x2="36"  y2="74" stroke="#c8640a" stroke-width=".35" opacity=".9"/>
+      <line x1="50"  y1="46" x2="64"  y2="74" stroke="#c8640a" stroke-width=".35" opacity=".9"/>
+      <line x1="36"  y1="74" x2="64"  y2="74" stroke="#c8640a" stroke-width=".35" opacity=".9"/>
+
+      <!-- spokes to center -->
+      <line x1="50"  y1="46" x2="50"  y2="58" stroke="#ff8c00" stroke-width=".25" opacity=".7"/>
+      <line x1="36"  y1="74" x2="50"  y2="58" stroke="#ff8c00" stroke-width=".25" opacity=".7"/>
+      <line x1="64"  y1="74" x2="50"  y2="58" stroke="#ff8c00" stroke-width=".25" opacity=".7"/>
+
+      <!-- corner tick marks on triangle -->
+      <circle cx="50"  cy="46" r=".7" fill="#c8640a"/>
+      <circle cx="36"  cy="74" r=".7" fill="#c8640a"/>
+      <circle cx="64"  cy="74" r=".7" fill="#c8640a"/>
+
+      <!-- center node -->
+      <circle cx="50" cy="58" r="1.2" fill="#ff8c00"
+              style="filter:drop-shadow(0 0 1px #ff8c00)"/>
     </svg>
-  </div>
 
-  <div class="header-center">
-    <div class="magi-title">MAGI&nbsp;&nbsp;SYSTEM</div>
-    <div class="magi-sub">MULTI-AGENT GENERAL INTELLIGENCE · DECISION SYSTEM v2.0</div>
-  </div>
-
-  <div class="status-row">
-    <div class="pill"><span class="led led-green"></span>CONDITION: GREEN</div>
-    <div class="pill"><span class="led led-orange" style="animation:led-blink 3s step-end infinite"></span>PATTERN: BLUE</div>
-    <div class="pill"><span class="led led-red" id="alert-led" style="animation:none;opacity:.3"></span>ALERT: <span id="alert-txt">STANDBY</span></div>
-    <div class="pill" style="color:#ff660066" id="clock-pill">──────────────</div>
-  </div>
-</header>
-
-<!-- ════════════ TICKER ════════════ -->
-<div class="ticker">
-  <div class="ticker-inner">
-    <span>MAGI SYSTEM ONLINE</span>
-    <span class="hi">◆</span>
-    <span>BALTHASAR-2 READY</span>
-    <span class="hi">◆</span>
-    <span>MELCHIOR-1 READY</span>
-    <span class="hi">◆</span>
-    <span>CASPER-3 READY</span>
-    <span class="hi">◆</span>
-    <span>ALL SYSTEMS NOMINAL</span>
-    <span class="hi">◆</span>
-    <span id="mock-tick">MODE: MOCK</span>
-    <span class="hi">◆</span>
-    <span>AWAITING DECISION INPUT</span>
-    <span class="hi">◆</span>
-    <!-- duplicate for seamless loop -->
-    <span>MAGI SYSTEM ONLINE</span>
-    <span class="hi">◆</span>
-    <span>BALTHASAR-2 READY</span>
-    <span class="hi">◆</span>
-    <span>MELCHIOR-1 READY</span>
-    <span class="hi">◆</span>
-    <span>CASPER-3 READY</span>
-    <span class="hi">◆</span>
-    <span>ALL SYSTEMS NOMINAL</span>
-    <span class="hi">◆</span>
-    <span>MODE: MOCK</span>
-    <span class="hi">◆</span>
-    <span>AWAITING DECISION INPUT</span>
-    <span class="hi">◆</span>
-  </div>
-</div>
-
-<!-- ════════════ INPUT ════════════ -->
-<div class="terminal-box">
-  <div class="input-row">
-    <textarea id="q" rows="2" placeholder="INPUT DECISION QUERY..."></textarea>
-    <button class="activate-btn" id="btn" onclick="activate()">
-      <div class="btn-inner">
-        <div class="btn-label">ACTIVATE<br>MAGI</div>
-        <div class="btn-sub">EXECUTE</div>
+    <!-- BALTHASAR·2 -->
+    <div class="mp" id="pb">
+      <div class="pc">
+        <div class="pname" id="nb">BALTHASAR·2</div>
+        <div class="psub" id="sb">NAOKO AKAGI · MOTHER</div>
+        <div class="pbody" id="bb"></div>
       </div>
-    </button>
-  </div>
-  <div id="err"></div>
-</div>
+    </div>
 
-<!-- ════════════ AGENT PANELS ════════════ -->
-<div class="panels-grid">
-
-  <div class="agent-panel panel-melchior" id="p-melchior">
-    <div class="panel-head">
-      <div>
-        <div class="panel-name">MELCHIOR-1</div>
-        <div class="panel-role">赤木直子 · 科学家人格</div>
+    <!-- CASPER·3 -->
+    <div class="mp" id="pc">
+      <div class="pc">
+        <div class="pname" id="nc">CASPER·3</div>
+        <div class="psub" id="sc">NAOKO AKAGI · WOMAN</div>
+        <div class="pbody" id="bc"></div>
       </div>
-      <div class="panel-unit">UNIT-01</div>
     </div>
-    <div class="scan-bar" id="sb-melchior"></div>
-    <div class="panel-body" id="b-melchior">
-      <div class="idle-text">[ UNIT-01 STANDBY ]<br>AWAITING ACTIVATION</div>
-    </div>
-  </div>
 
-  <div class="agent-panel panel-balthasar" id="p-balthasar">
-    <div class="panel-head">
-      <div>
-        <div class="panel-name">BALTHASAR-2</div>
-        <div class="panel-role">赤木直子 · 母亲人格</div>
+    <!-- MELCHIOR·1 -->
+    <div class="mp" id="pm">
+      <div class="pc">
+        <div class="pname" id="nm">MELCHIOR·1</div>
+        <div class="psub" id="sm">NAOKO AKAGI · SCIENTIST</div>
+        <div class="pbody" id="bm"></div>
       </div>
-      <div class="panel-unit">UNIT-02</div>
     </div>
-    <div class="scan-bar" id="sb-balthasar"></div>
-    <div class="panel-body" id="b-balthasar">
-      <div class="idle-text">[ UNIT-02 STANDBY ]<br>AWAITING ACTIVATION</div>
+
+    <!-- MAGI center -->
+    <div id="magi-label">
+      <span class="dot">◆</span>
+      <span class="word">MAGI</span>
     </div>
+
   </div>
 
-  <div class="agent-panel panel-casper" id="p-casper">
-    <div class="panel-head">
-      <div>
-        <div class="panel-name">CASPER-3</div>
-        <div class="panel-role">赤木直子 · 女人人格</div>
-      </div>
-      <div class="panel-unit">UNIT-03</div>
+  <!-- ══ INPUT ══ -->
+  <div class="input-area">
+    <div class="iline">
+      <span class="ilabel">access code:</span>
+      <span class="dots-fill" id="dfill">·····················································</span>
     </div>
-    <div class="scan-bar" id="sb-casper"></div>
-    <div class="panel-body" id="b-casper">
-      <div class="idle-text">[ UNIT-03 STANDBY ]<br>PENDING UNIT-01/02</div>
+    <div class="iline">
+      <span class="ilabel">question:</span>
+      <input type="text" id="q" placeholder="INPUT DECISION QUERY..."/>
+      <button class="exec-btn" id="btn" onclick="run()">EXECUTE</button>
     </div>
+    <div id="err"></div>
   </div>
 
-</div>
+  <!-- ══ FOOTER ══ -->
+  <div class="foot">
+    <span>NERV / GEHIRN · PROJECT MAGI</span>
+    <span id="clk">──────────────────────</span>
+    <span>AUTHORIZED ONLY</span>
+  </div>
 
-<!-- ════════════ VERDICT ════════════ -->
-<div id="verdict-wrap">
-  <div class="verdict-label">◆ MAGI SYSTEM — FINAL VERDICT ◆</div>
-  <div class="verdict-divider"></div>
-  <div id="verdict-text"></div>
-  <div class="verdict-divider"></div>
-</div>
-
-<footer>NERV / PROJECT MAGI · AUTHORIZED PERSONNEL ONLY · GEHIRN ADVANCED TECHNOLOGY</footer>
-</div><!-- #app -->
+</div><!-- #frame -->
 
 <script>
 /* ── clock ── */
-(function clock(){
-  const el=document.getElementById('clock-pill');
-  function tick(){
-    const n=new Date();
-    el.textContent=n.toISOString().replace('T',' ').slice(0,19)+' UTC';
-  }
-  tick();setInterval(tick,1000);
-})();
+!function tick(){
+  document.getElementById('clk').textContent=
+    new Date().toISOString().replace('T',' ').slice(0,19)+' JST';
+  setTimeout(tick,1000);
+}();
 
-/* ── health check ── */
-fetch('/api/health').then(r=>r.json()).then(d=>{
-  if(!d.mock_mode){
-    document.getElementById('mock-tick').textContent='MODE: LIVE';
-  }
-}).catch(()=>{});
+/* ── sys code flicker ── */
+!function(){
+  var n=3021,L='ABCDE';
+  setInterval(function(){
+    n+=Math.floor(Math.random()*3+1);
+    document.getElementById('scode').textContent=
+      n+'-'+L[Math.floor(Math.random()*5)];
+  },2200);
+}();
+
+/* ── access code dots ── */
+!function(){
+  var el=document.getElementById('dfill');
+  var c='·∙•◦○';
+  setInterval(function(){
+    var s='';
+    for(var i=0;i<52;i++) s+=c[Math.floor(Math.random()*c.length)];
+    el.textContent=s;
+  },120);
+}();
 
 /* ── typewriter ── */
-function typewrite(el, text, speed=7){
-  return new Promise(resolve=>{
+function tw(el,text,spd){
+  spd=spd||8;
+  return new Promise(function(done){
     el.innerHTML='';
-    let i=0;
-    // inject caret once
-    const caret=document.createElement('span');
-    caret.className='caret';
-    el.appendChild(caret);
-
-    function tick(){
-      if(i>=text.length){caret.remove();resolve();return;}
-      const chunk=text.slice(i,Math.min(i+2,text.length));
-      caret.insertAdjacentText('beforebegin',chunk);
+    var i=0;
+    var cur=document.createElement('span');
+    cur.className='caret';
+    el.appendChild(cur);
+    function step(){
+      if(i>=text.length){cur.remove();done();return;}
+      var chunk=text.slice(i,Math.min(i+2,text.length));
+      cur.insertAdjacentText('beforebegin',chunk);
       i+=chunk.length;
-      // highlight section headers 【...】
-      const raw=el.innerHTML;
-      if(raw.includes('【')){
-        el.innerHTML=raw.replace(
-          /(【[^】]*】)/g,
-          '<span class="sh">$1</span>'
-        );
-        // caret gets wiped — re-add
+      // highlight 【...】
+      var h=el.innerHTML;
+      if(h.indexOf('【')>=0){
+        el.innerHTML=h.replace(/(【[^】]*】)/g,'<span class="sh">$1</span>');
         if(!el.querySelector('.caret')){
-          const c=document.createElement('span');
-          c.className='caret';
-          el.appendChild(c);
+          var c2=document.createElement('span');
+          c2.className='caret';el.appendChild(c2);
         }
       }
-      setTimeout(tick, speed);
+      setTimeout(step,spd);
     }
-    tick();
+    step();
   });
 }
 
-/* ── panel state helpers ── */
-function setActive(id){
-  const p=document.getElementById('p-'+id);
-  p.classList.add('panel-active','panel-scanning');
-  document.getElementById('sb-'+id).style.width='100%';
+/* ── panel helpers ── */
+function showText(id){
+  document.getElementById('n'+id).style.display='none';
+  document.getElementById('s'+id).style.display='none';
+  var b=document.getElementById('b'+id);
+  b.style.display='block';
+  return b;
 }
-function setDone(id){
-  document.getElementById('p-'+id).classList.remove('panel-active');
+function resetPanel(id){
+  document.getElementById('n'+id).style.display='';
+  document.getElementById('s'+id).style.display='';
+  var b=document.getElementById('b'+id);
+  b.style.display='none';b.innerHTML='';
+  document.getElementById('p'+id).classList.remove('scanning');
 }
-function setLoading(id, msg){
-  const b=document.getElementById('b-'+id);
-  b.innerHTML=`<span class="dots" style="color:#556;font-size:10px;letter-spacing:1px">${msg}</span>`;
+function setScan(id,on){
+  var el=document.getElementById('p'+id);
+  if(on) el.classList.add('scanning');
+  else el.classList.remove('scanning');
 }
 
 /* ── main ── */
-async function activate(){
-  const q=document.getElementById('q').value.trim();
-  const err=document.getElementById('err');
+async function run(){
+  var q=document.getElementById('q').value.trim();
+  var err=document.getElementById('err');
   err.style.display='none';
+  if(!q){err.textContent='ERROR: NO INPUT DETECTED';err.style.display='block';return;}
 
-  if(!q){err.textContent='ERROR: INPUT REQUIRED';err.style.display='block';return;}
-
-  const btn=document.getElementById('btn');
+  var btn=document.getElementById('btn');
   btn.disabled=true;
 
-  // alert status
-  const led=document.getElementById('alert-led');
-  const atxt=document.getElementById('alert-txt');
-  led.style.animation='led-blink 2s step-end infinite';
-  led.style.opacity='1';
-  atxt.textContent='ACTIVE';
+  // reset
+  ['b','c','m'].forEach(resetPanel);
+  document.getElementById('kaiketsu-text').innerHTML='';
 
-  // reset panels
-  document.getElementById('verdict-wrap').style.display='none';
-  ['melchior','balthasar','casper'].forEach(id=>{
-    document.getElementById('p-'+id).classList.remove('panel-active','panel-scanning');
-    document.getElementById('sb-'+id).style.width='0%';
+  // loading state
+  ['b','m'].forEach(function(id){
+    setScan(id,true);
+    var t=showText(id);
+    t.textContent='ANALYZING...';
   });
-  setActive('melchior'); setLoading('melchior','UNIT-01 ANALYZING');
-  setActive('balthasar'); setLoading('balthasar','UNIT-02 ANALYZING');
-  setLoading('casper','PENDING UNIT-01/02');
+  setScan('c',true);
+  var ct=showText('c');
+  ct.textContent='PENDING UNIT-01/02...';
 
   try{
-    const res=await fetch('/api/analyze',{
+    var res=await fetch('/api/analyze',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({question:q})
     });
-    if(!res.ok){const e=await res.json();throw new Error(e.detail||`HTTP ${res.status}`);}
-    const data=await res.json();
+    if(!res.ok){var e=await res.json();throw new Error(e.detail||'HTTP '+res.status);}
+    var data=await res.json();
 
-    // type MELCHIOR + BALTHASAR in parallel
+    var bEl=showText('b');
+    var mEl=showText('m');
+    var cEl=showText('c');
+
+    // Phase 1: BALTHASAR + MELCHIOR parallel
     await Promise.all([
-      typewrite(document.getElementById('b-melchior'),  data.melchior, 7),
-      typewrite(document.getElementById('b-balthasar'), data.balthasar, 7),
+      tw(bEl, data.balthasar, 7),
+      tw(mEl, data.melchior,  7)
     ]);
-    setDone('melchior'); setDone('balthasar');
+    setScan('b',false); setScan('m',false);
 
-    // CASPER
-    setActive('casper'); setLoading('casper','UNIT-03 DELIBERATING');
-    await new Promise(r=>setTimeout(r,400));
-    await typewrite(document.getElementById('b-casper'), data.casper, 5);
-    setDone('casper');
+    // Phase 2: CASPER
+    await tw(cEl, data.casper, 6);
+    setScan('c',false);
 
-    // Verdict
-    const vw=document.getElementById('verdict-wrap');
-    const vt=document.getElementById('verdict-text');
-    vw.style.display='block';
-    await typewrite(vt, '▸ '+data.verdict, 35);
-    vw.classList.add('alert-on');
-    setTimeout(()=>vw.classList.remove('alert-on'),3500);
+    // Phase 3: verdict in 解決 zone
+    await tw(document.getElementById('kaiketsu-text'), data.verdict, 28);
 
-    // alert → done
-    led.style.animation='none';
-    led.style.background='#00ff88';
-    led.style.boxShadow='0 0 6px #00ff88';
-    atxt.textContent='RESOLVED';
-
-  }catch(e){
-    err.textContent='SYSTEM ERROR: '+e.message;
+  }catch(ex){
+    err.textContent='SYSTEM ERROR: '+ex.message;
     err.style.display='block';
-    led.style.animation='led-blink 0.4s step-end infinite';
-    atxt.textContent='FAULT';
+    ['b','c','m'].forEach(resetPanel);
   }finally{
     btn.disabled=false;
   }
 }
 
-/* Enter to submit */
-document.getElementById('q').addEventListener('keydown',e=>{
-  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();activate();}
+/* Enter key */
+document.getElementById('q').addEventListener('keydown',function(e){
+  if(e.key==='Enter'){e.preventDefault();run();}
 });
 </script>
 </body>
