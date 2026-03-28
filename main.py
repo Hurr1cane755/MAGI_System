@@ -180,33 +180,33 @@ def main() -> None:
 
     print()
 
-    # 输出 Balthasar 结果
-    if "BALTHASAR" in results:
-        print(section_box("BALTHASAR", "理性分析", results["BALTHASAR"], COLOR_BALTHASAR))
+    # 输出 Melchior-1 结果
+    if "MELCHIOR-1" in results:
+        print(section_box("MELCHIOR-1", "科学家", results["MELCHIOR-1"], COLOR_MELCHIOR))
         print()
 
-    # 输出 Melchior 结果
-    if "MELCHIOR" in results:
-        print(section_box("MELCHIOR", "感性分析", results["MELCHIOR"], COLOR_MELCHIOR))
+    # 输出 Balthasar-2 结果
+    if "BALTHASAR-2" in results:
+        print(section_box("BALTHASAR-2", "母亲", results["BALTHASAR-2"], COLOR_BALTHASAR))
         print()
 
     # 调用 Caspar 仲裁
-    print(f"{COLOR_SYSTEM}{BOLD}[ MAGI SYSTEM ] 移交 CASPAR 进行最终仲裁...{RESET}\n")
+    print(f"{COLOR_SYSTEM}{BOLD}[ MAGI SYSTEM ] 移交 CASPER-3 进行最终裁决...{RESET}\n")
 
-    balthasar_out = results.get("BALTHASAR", "（分析失败）")
-    melchior_out = results.get("MELCHIOR", "（分析失败）")
+    balthasar_out = results.get("BALTHASAR-2", "（分析失败）")
+    melchior_out = results.get("MELCHIOR-1", "（分析失败）")
 
     try:
         caspar_result = run_with_spinner(
-            "CASPAR 仲裁中",
+            "CASPER-3 裁决中",
             COLOR_CASPAR,
             caspar.analyze_with_context,
             question,
-            balthasar_out,
             melchior_out,
+            balthasar_out,
         )
-        print(f"{GREEN}✔ CASPAR 裁决完成{RESET}\n")
-        print(section_box("CASPAR", "仲裁决策", caspar_result, COLOR_CASPAR))
+        print(f"{GREEN}✔ CASPER-3 裁决完成{RESET}\n")
+        print(section_box("CASPER-3", "女人", caspar_result, COLOR_CASPAR))
     except Exception as e:
         print(f"{RED}✘ CASPAR 失败: {e}{RESET}")
 
