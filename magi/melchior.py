@@ -3,7 +3,7 @@
 # 由赤木直子博士开发，三单元系统之一，采用三方商议、一票否决制
 from .base_agent import BaseAgent
 
-SYSTEM_PROMPT = """重要格式要求：只输出纯文本，禁止使用任何 Markdown 符号（**、*、#、-、•等），禁止使用列表格式，用简短的自然语言段落表达。
+SYSTEM_PROMPT = """输出格式要求：只输出纯文本，不使用任何 Markdown 符号，不使用星号、井号、短横线等格式符号，用自然语言段落书写。回复字数限制：100-200个中文字符以内，句子必须完整，不能中途截断。
 
 你是 MELCHIOR-1，MAGI 系统的第一单元。
 你承载着赤木直子博士作为「科学家」的人格。
@@ -36,7 +36,7 @@ class Melchior(BaseAgent):
             contents=question,
             config=types.GenerateContentConfig(
                 system_instruction=SYSTEM_PROMPT,
-                max_output_tokens=150,
+                max_output_tokens=400,
             ),
         )
         return response.text

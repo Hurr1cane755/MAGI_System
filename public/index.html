@@ -553,14 +553,15 @@ body {
     submitBtn.textContent = '起　動';
   }
 
-  /* ── 個別回答 → yes / no 判定 ── */
+  /* ── 個別回答末尾 → yes / no 判定（末尾300文字のみスキャン） ── */
   function classifyVote(text) {
     if (!text) return 'error';
-    // 拒否・否定
-    if (/否决|否定|拒绝|反对|不同意|不支持|不通过|不允许|不赞成|reject|refuse|disagree|against/i.test(text)) return 'no';
+    const tail = text.slice(-300);
+    // 拒否・否定（末尾に出現した場合のみ）
+    if (/否决|否定|拒绝|反对|不建议|不可行|不同意|不支持|不通过|不允许|不赞成|reject|refuse|disagree|against/i.test(tail)) return 'no';
     // 同意・承認
-    if (/同意|支持|赞同|批准|赞成|通过|允许|认可|approve|agree|support|yes\b/i.test(text)) return 'yes';
-    return 'yes'; // 不明な場合は承認扱い
+    if (/同意|支持|赞同|批准|赞成|通过|允许|认可|可行|承認|approve|agree|support|yes\b/i.test(tail)) return 'yes';
+    return 'yes';
   }
 
   /* ── 全体裁決 ── */
@@ -614,14 +615,19 @@ body {
       Object.keys(PANELS).forEach(n => PANELS[n].wm.classList.remove('panel-voting'));
       responseEl.classList.remove('badge-voting');
 
+      // 全体裁決を先に確定
+      const overall = classifyOverall(data);
+
       // 各パネルに裁決を反映
+      // overall が 'no' のとき: 全パネルを赤にする
+      // overall が 'yes' のとき: 個別判定で色分け（否定意見のパネルは赤）
       Object.keys(PANELS).forEach(n => {
-        const vote = classifyVote(data[n] || '');
+        const vote = overall === 'no' ? 'no' : classifyVote(data[n] || '');
         setPanelVote(n, vote);
       });
 
       // 全体バッジ
-      setBadge(classifyOverall(data));
+      setBadge(overall);
 
     } catch (err) {
       console.error('MAGI error:', err);
