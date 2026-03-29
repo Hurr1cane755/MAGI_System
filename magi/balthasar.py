@@ -56,6 +56,6 @@ class Balthasar(BaseAgent):
             import google.generativeai as genai
             genai.configure(api_key=api_key)
             self._model = genai.GenerativeModel(
-                model_name="gemini-2.0-flash",
+                model_name="gemini-2.5-flash-preview-04-17",
                 system_instruction=SYSTEM_PROMPT,
             )
