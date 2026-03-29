@@ -1,533 +1,499 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-Hant">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MAGI System Interface</title>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MAGI System - Responsive Layout</title>
+  <style>
+    :root {
+      --bg: #000000;
+      --orange: #f39a2e;
+      --green-line: #7cff9c;
+      --blue-panel: #77b3d8;
+      --blue-ui: #7fbfff;
+      --yellow-panel: #efe08a;
+      --yellow-ui: #efe08a;
+      --green-panel: #8eff9f;
+      --green-ui: #8eff9f;
+      --red-panel: #d94a4a;
+      --red-ui: #d94a4a;
+      --panel-fill: var(--blue-panel);
+      --ui-color: var(--blue-ui);
+      --badge-size: 27px;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+      font-family: "Courier New", Courier, monospace;
+    }
+    body {
+      display: grid;
+      place-items: center;
+      user-select: none;
+    }
 
-  body {
-    background-color: #050505;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-    font-family: 'Microsoft YaHei', 'PingFang SC', 'Noto Sans SC', sans-serif;
-    color: #ff8c00;
-    user-select: none;
-  }
+    .core {
+      position: relative;
+      width: min(96vw, calc(96vh * 1.9047619));
+      aspect-ratio: 800 / 420;
+      background: var(--bg);
+      border: 2px solid var(--orange);
+      overflow: hidden;
+      container-type: size;
+    }
+    .scanlines {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: .08;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,.02) 0,
+        rgba(255,255,255,.02) 1px,
+        transparent 1px,
+        transparent 4px
+      );
+      mix-blend-mode: screen;
+    }
 
-  /* ── 外层缩放容器 ── */
-  .scale-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100vw;
-    height: 100vh;
-  }
+    /* ── タイトル帯 ── */
+    .title-area {
+      position: absolute;
+      top: 1.9%;
+      width: 31.875%;
+      height: 22.38%;
+      color: var(--orange);
+      z-index: 3;
+    }
+    .title-left  { left: 1%; }
+    .title-right { right: 1%; }
+    .rail {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 10.64%;
+    }
+    .rail::before,
+    .rail::after {
+      content: "";
+      position: absolute;
+      left: 0; right: 0;
+      height: 2px;
+      background: var(--green-line);
+      box-shadow: 0 0 4px rgba(124,255,156,.24);
+    }
+    .rail::before { top: 10%; }
+    .rail::after  { top: 50%; }
+    .rail.top    { top: 0; }
+    .rail.bottom { bottom: 0; }
+    .title {
+      position: absolute;
+      left: 0; right: 0;
+      top: 15%;
+      margin: 0;
+      color: var(--orange);
+      font-family: "Arial Black", "Microsoft YaHei", "PingFang SC", sans-serif;
+      font-size: clamp(24px, 7.75cqw, 62px);
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: .08em;
+      transform: scaleX(1.02);
+      text-align: center;
+    }
 
-  /* ── 主屏幕 1000×562，JS 动态 scale ── */
-  .screen {
-    position: relative;
-    width: 1000px;
-    height: 562px;
-    background-color: #000;
-    border: 3px solid #ff8c00;
-    transform-origin: center center;
-    flex-shrink: 0;
-  }
+    /* ── 左下情報ブロック ── */
+    .meta {
+      position: absolute;
+      left: 2.25%;
+      top: 25.95%;
+      color: var(--orange);
+      z-index: 3;
+      line-height: 1.06;
+      font-weight: 700;
+    }
+    .meta .main {
+      font-size: clamp(12px, 3.05cqw, 24px);
+      margin-bottom: .18em;
+    }
+    .meta .row {
+      font-size: clamp(8px, 1.75cqw, 14px);
+      white-space: nowrap;
+    }
 
-  /* 内层装饰边框 */
-  .border-accent {
-    position: absolute;
-    top: 5px; left: 5px; right: 5px; bottom: 5px;
-    border: 1px solid #ff8c00;
-    pointer-events: none;
-    z-index: 10;
-  }
+    /* ── 情報バッジ（質問スタイル） ── */
+    .status-badge {
+      position: absolute;
+      left: 86.75%;
+      top: 30.48%;
+      width: 9.5%;
+      height: 15.25%;
+      border: 2px solid var(--orange);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.85);
+      background: rgba(0,0,0,.45);
+      color: var(--ui-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Arial Black", "Microsoft YaHei", sans-serif;
+      font-size: var(--badge-size);
+      font-weight: 900;
+      letter-spacing: .06em;
+      cursor: pointer;
+      z-index: 4;
+      padding: 0;
+      overflow: hidden;
+    }
+    /* 質問タイトル風の緑レール装飾 */
+    .status-badge::before,
+    .status-badge::after {
+      content: "";
+      position: absolute;
+      left: 8%;
+      right: 8%;
+      height: 1.5px;
+      background: var(--green-line);
+      box-shadow: 0 0 3px rgba(124,255,156,.35);
+    }
+    .status-badge::before { top: 10%; }
+    .status-badge::after  { bottom: 10%; }
 
-  /* 上下警示条纹 */
-  .hazard-top, .hazard-bottom {
-    position: absolute;
-    left: -3px; right: -3px;
-    height: 12px;
-    background: repeating-linear-gradient(
-      -45deg,
-      #000 0, #000 10px,
-      #995500 10px, #995500 20px
-    );
-    border: 1px solid #000;
-  }
-  .hazard-top    { top: -15px; }
-  .hazard-bottom { bottom: -15px; }
+    /* ── SVG レイアウト ── */
+    .layout-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+    .panel {
+      fill: var(--panel-fill);
+      stroke: var(--orange);
+      stroke-width: 2;
+      transition: fill .22s ease, opacity .22s ease;
+    }
+    .bus {
+      stroke: var(--orange);
+      stroke-width: 6;
+      fill: none;
+      stroke-linecap: square;
+    }
+    .label {
+      fill: #000;
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-anchor: middle;
+      dominant-baseline: middle;
+      pointer-events: none;
+    }
+    .bal-label { font-size: 28px; }
+    .cas-label,
+    .mel-label { font-size: 26px; }
+    .magi-label {
+      fill: var(--orange);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-anchor: middle;
+      dominant-baseline: middle;
+      pointer-events: none;
+    }
+    /* 結果テキスト（面板内の小文字） */
+    .result-text {
+      fill: #000;
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      text-anchor: middle;
+      dominant-baseline: auto;
+      pointer-events: none;
+    }
 
-  /* ── 左上角 ── */
-  .top-left {
-    position: absolute;
-    top: 28px;
-    left: 40px;
-  }
-  .jp-title {
-    font-family: 'Impact', 'Microsoft YaHei', sans-serif;
-    font-size: 60px;
-    font-weight: 900;
-    letter-spacing: 14px;
-    line-height: 1;
-    transform: scaleX(1.1);
-    transform-origin: left;
-    display: block;
-  }
-  .green-lines {
-    width: 260px;
-    height: 6px;
-    border-top: 2px solid #4caf50;
-    border-bottom: 2px solid #4caf50;
-    margin-top: 7px;
-    margin-bottom: 12px;
-  }
-  .code-block {
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 14px;
-    line-height: 1.4;
-    font-weight: bold;
-    letter-spacing: 1px;
-  }
-  .code-main {
-    font-size: 24px;
-    margin-bottom: 4px;
-  }
+    /* ── 入力モーダル ── */
+    .input-modal {
+      position: absolute;
+      left: 50%;
+      bottom: 3.8%;
+      transform: translateX(-50%);
+      width: min(78%, 560px);
+      display: none;
+      background: rgba(0,0,0,.96);
+      border: 2px solid var(--orange);
+      padding: 12px;
+      z-index: 8;
+    }
+    .input-modal.active { display: block; }
+    .input-title {
+      color: var(--orange);
+      font-size: clamp(10px, 1.8cqw, 14px);
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+    }
+    .input-row {
+      display: flex;
+      gap: 8px;
+    }
+    .query-input {
+      flex: 1;
+      min-width: 0;
+      background: transparent;
+      border: 1px solid var(--orange);
+      color: var(--blue-ui);
+      padding: 8px 10px;
+      font-size: clamp(12px, 2cqw, 16px);
+      outline: none;
+      font-family: inherit;
+    }
+    .query-input::placeholder {
+      color: rgba(127,191,255,.6);
+    }
+    .query-btn {
+      border: 1px solid var(--orange);
+      background: var(--orange);
+      color: #000;
+      padding: 0 18px;
+      font-size: clamp(11px, 1.75cqw, 14px);
+      font-weight: 900;
+      cursor: pointer;
+      font-family: "Microsoft YaHei", sans-serif;
+    }
 
-  /* ── 右上角 ── */
-  .top-right {
-    position: absolute;
-    top: 28px;
-    right: 40px;
-    text-align: right;
-  }
-  .top-right .jp-title { transform-origin: right; }
-  .top-right .green-lines { float: right; }
-
-  /* 情報徽章 */
-  .info-badge {
-    position: absolute;
-    top: 128px;
-    right: 40px;
-    border: 3px solid #40BBE3;
-    padding: 5px 11px;
-    color: #40BBE3;
-    font-size: 28px;
-    font-weight: bold;
-    font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
-    letter-spacing: 5px;
-  }
-
-  /* 最終裁決徽章 */
-  #verdict {
-    display: none;
-    position: absolute;
-    top: 195px;
-    right: 40px;
-    font-size: 26px;
-    font-weight: bold;
-    font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
-    letter-spacing: 4px;
-    padding: 4px 12px;
-    border: 3px solid currentColor;
-    z-index: 20;
-  }
-  #verdict.resolve { display: block; color: #4caf50; }
-  #verdict.reject  { display: block; color: #cc0000; }
-
-  /* ── MAGI 面板系统 ── */
-  .magi-system {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -52%);
-    width: 860px;
-    height: 370px;
-  }
-
-  /* 通用面板 */
-  .panel {
-    position: absolute;
-    background-color: #40BBE3;
-    color: #000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
-    font-size: 30px;
-    font-weight: 900;
-    letter-spacing: 2px;
-    text-align: center;
-    padding: 8px;
-    transition: background-color 0.3s;
-  }
-  .panel .panel-content {
-    font-size: inherit;
-    line-height: 1.2;
-    word-break: break-word;
-    max-width: 100%;
-  }
-  .panel.summary .panel-content {
-    font-size: 13px;
-    font-weight: bold;
-    letter-spacing: 0;
-    line-height: 1.4;
-  }
-
-  /* BALTHASAR — 上方居中，六边形 */
-  .balthasar {
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 320px;
-    height: 210px;
-    clip-path: polygon(0 0, 100% 0, 100% 75%, 65% 100%, 35% 100%, 0 75%);
-    padding-bottom: 28px;
-  }
-
-  /* CASPER — 左下 */
-  .casper {
-    bottom: 0;
-    left: 20px;
-    width: 340px;
-    height: 185px;
-    clip-path: polygon(0 20%, 60% 20%, 100% 55%, 100% 100%, 0 100%);
-    padding-top: 28px;
-    padding-right: 35px;
-  }
-
-  /* MELCHIOR — 右下 */
-  .melchior {
-    bottom: 0;
-    right: 20px;
-    width: 340px;
-    height: 185px;
-    clip-path: polygon(0 55%, 40% 20%, 100% 20%, 100% 100%, 0 100%);
-    padding-top: 28px;
-    padding-left: 35px;
-  }
-
-  /* 橙色连接线 */
-  .connector { position: absolute; background-color: #ff8c00; }
-  .conn-left {
-    width: 55px; height: 7px;
-    top: 196px; left: 328px;
-    transform: rotate(43deg);
-  }
-  .conn-right {
-    width: 55px; height: 7px;
-    top: 196px; right: 328px;
-    transform: rotate(-43deg);
-  }
-  .conn-bottom {
-    width: 130px; height: 7px;
-    bottom: 112px; left: 50%;
-    transform: translateX(-50%);
-  }
-  .conn-base {
-    width: 130px; height: 46px;
-    bottom: 66px; left: 50%;
-    transform: translateX(-50%);
-    background-color: #000;
-    border-left: 7px solid #ff8c00;
-    border-right: 7px solid #ff8c00;
-    z-index: -1;
-  }
-
-  /* 中央 MAGI */
-  .magi-text {
-    position: absolute;
-    top: 232px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: #ff8c00;
-    font-family: 'Times New Roman', Times, serif;
-    font-size: 38px;
-    font-weight: bold;
-    letter-spacing: 5px;
-    white-space: nowrap;
-  }
-
-  /* ── 底部输入区 ── */
-  .terminal-inputs {
-    position: absolute;
-    bottom: 15px;
-    left: 45px;
-    right: 45px;
-  }
-  .input-line {
-    display: flex;
-    align-items: center;
-    margin-bottom: 5px;
-    font-size: 15px;
-    font-weight: bold;
-    font-family: 'Courier New', Courier, monospace;
-  }
-  .input-label {
-    width: 125px;
-    flex-shrink: 0;
-    color: #ff8c00;
-  }
-  .input-dots {
-    flex-grow: 1;
-    border: 1px solid #ff8c00;
-    height: 22px;
-    display: flex;
-    align-items: center;
-    padding: 0 8px;
-    color: #ff8c00;
-    letter-spacing: 3px;
-  }
-  #question-input {
-    flex-grow: 1;
-    background: #000;
-    border: 1px solid #ff8c00;
-    color: #ff8c00;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 15px;
-    padding: 0 8px;
-    height: 22px;
-    outline: none;
-  }
-  #question-input::placeholder { opacity: 0.3; }
-  #question-input.error { border-color: #cc0000; }
-
-  #activate-btn {
-    margin-top: 7px;
-    background: #000;
-    border: 2px solid #ff8c00;
-    color: #ff8c00;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 15px;
-    padding: 3px 18px;
-    cursor: pointer;
-    letter-spacing: 3px;
-    transition: background 0.15s, color 0.15s;
-  }
-  #activate-btn:hover  { background: #ff8c00; color: #000; }
-  #activate-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-
-  /* ── 投票动画 ── */
-  .panel.voting { animation: panel-flash 0.4s infinite step-end; }
-  @keyframes panel-flash { 50% { background-color: #ff0000; } }
-
-  /* 投票结果颜色 */
-  .panel.resolve { background-color: #4caf50 !important; animation: none !important; }
-  .panel.reject  { background-color: #cc0000 !important; animation: none !important; }
-</style>
+    /* ── 審議中アニメーション ── */
+    .processing .panel {
+      animation: panelPulse .5s infinite steps(1);
+    }
+    @keyframes panelPulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: .78; }
+    }
+  </style>
 </head>
 <body>
+  <div class="core" id="screen">
+    <div class="scanlines"></div>
 
-<div class="scale-container">
-  <div style="position: relative;">
-    <div class="hazard-top"></div>
+    <div class="title-area title-left">
+      <div class="rail top"></div>
+      <h1 class="title">提诉</h1>
+      <div class="rail bottom"></div>
+    </div>
+    <div class="title-area title-right">
+      <div class="rail top"></div>
+      <h1 class="title">决议</h1>
+      <div class="rail bottom"></div>
+    </div>
 
-    <div class="screen">
-      <div class="border-accent"></div>
+    <div class="meta">
+      <div class="main">CODE:<span id="code-num">473</span></div>
+      <div class="row">FILE:MAGI_SYS</div>
+      <div class="row">EXTENTION:3023</div>
+      <div class="row">EX_MODE:OFF</div>
+      <div class="row">PRIORITY:AAA</div>
+    </div>
 
-      <!-- 左上角 -->
-      <div class="top-left">
-        <span class="jp-title">質問</span>
-        <div class="green-lines"></div>
-        <div class="code-block">
-          <div class="code-main">CODE:<span id="code-num">473</span></div>
-          <div>&nbsp;&nbsp;FILE:MAGI_SYS</div>
-          <div>&nbsp;&nbsp;EXTENTION:3023</div>
-          <div>&nbsp;&nbsp;EX_MODE:OFF</div>
-          <div>&nbsp;&nbsp;PRIORITY:AAA</div>
-        </div>
+    <!-- 情報バッジ（質問スタイル、クリックで入力を開く） -->
+    <button class="status-badge" id="statusBtn" type="button">情报</button>
+
+    <svg class="layout-svg" viewBox="0 0 800 420"
+         xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+
+      <!-- 接続ライン -->
+      <line class="bus" x1="300" y1="232" x2="286" y2="206" />
+      <line class="bus" x1="500" y1="232" x2="514" y2="206" />
+      <line class="bus" x1="400" y1="274" x2="400" y2="330" />
+      <line class="bus" x1="331" y1="330" x2="469" y2="330" />
+
+      <!-- 三面板 -->
+      <polygon class="panel" points="265,3 537,3 537,182 456,247 344,247 265,182" />
+      <polygon class="panel" points="12,198 219,198 331,280 331,406 12,406" />
+      <polygon class="panel" points="788,198 581,198 469,280 469,406 788,406" />
+
+      <!-- 面板ラベル -->
+      <text class="label bal-label" x="401" y="129">BALTHASAR • 2</text>
+      <text class="label cas-label" x="173" y="308">CASPER • 3</text>
+      <text class="label mel-label" x="627" y="308">MELCHIOR • 1</text>
+      <text class="magi-label"      x="400" y="291">MAGI</text>
+
+      <!-- 結果テキスト（API応答後に表示） -->
+      <text id="bal-result" class="result-text" x="401" y="162" visibility="hidden"></text>
+      <text id="cas-result" class="result-text" x="172" y="335" visibility="hidden"></text>
+      <text id="mel-result" class="result-text" x="628" y="335" visibility="hidden"></text>
+    </svg>
+
+    <div class="input-modal" id="inputModal">
+      <div class="input-title">PLEASE ENTER YOUR QUESTION:</div>
+      <div class="input-row">
+        <input id="queryInput" class="query-input" type="text"
+               placeholder="输入你想审议的问题..." autocomplete="off" />
+        <button id="confirmBtn" class="query-btn" type="button">确认</button>
       </div>
-
-      <!-- 右上角 -->
-      <div class="top-right">
-        <span class="jp-title">解決</span>
-        <div class="green-lines"></div>
-      </div>
-      <div class="info-badge">情報</div>
-
-      <!-- 裁決徽章 -->
-      <div id="verdict"></div>
-
-      <!-- MAGI 面板系统 -->
-      <div class="magi-system">
-        <div class="panel balthasar" id="panel-balthasar">
-          <span class="panel-content">BALTHASAR・2</span>
-        </div>
-        <div class="panel casper" id="panel-casper">
-          <span class="panel-content">CASPER・3</span>
-        </div>
-        <div class="panel melchior" id="panel-melchior">
-          <span class="panel-content">MELCHIOR・1</span>
-        </div>
-
-        <div class="connector conn-left"></div>
-        <div class="connector conn-right"></div>
-        <div class="connector conn-bottom"></div>
-        <div class="conn-base"></div>
-
-        <div class="magi-text">MAGI</div>
-      </div>
-
-      <!-- 底部输入区 -->
-      <div class="terminal-inputs">
-        <div class="input-line">
-          <span class="input-label">access code:</span>
-          <div class="input-dots">...................................</div>
-        </div>
-        <div class="input-line">
-          <span class="input-label">question:</span>
-          <input type="text" id="question-input"
-                 placeholder="INPUT DECISION QUERY"
-                 autocomplete="off">
-        </div>
-        <button id="activate-btn">ACTIVATE MAGI</button>
-      </div>
-    </div><!-- .screen -->
-
-    <div class="hazard-bottom"></div>
+    </div>
   </div>
-</div><!-- .scale-container -->
 
-<script>
-(function () {
-  'use strict';
+  <script>
+  (function () {
+    'use strict';
 
-  /* ── 等比缩放适配屏幕 ── */
-  function resizeScreen() {
-    const scaleX = window.innerWidth  / 1060;
-    const scaleY = window.innerHeight / 620;
-    const scale  = Math.min(scaleX, scaleY);
-    document.querySelector('.screen').style.transform = 'scale(' + scale + ')';
-  }
-  window.addEventListener('resize', resizeScreen);
-  resizeScreen();
+    const screen    = document.getElementById('screen');
+    const statusBtn = document.getElementById('statusBtn');
+    const inputModal= document.getElementById('inputModal');
+    const queryInput= document.getElementById('queryInput');
+    const confirmBtn= document.getElementById('confirmBtn');
+    const codeEl    = document.getElementById('code-num');
+    const root      = document.documentElement;
 
-  /* ── refs ── */
-  const panelB    = document.getElementById('panel-balthasar');
-  const panelC    = document.getElementById('panel-casper');
-  const panelM    = document.getElementById('panel-melchior');
-  const qInput    = document.getElementById('question-input');
-  const actBtn    = document.getElementById('activate-btn');
-  const verdictEl = document.getElementById('verdict');
-  const codeEl    = document.getElementById('code-num');
+    let timer = null;
 
-  let voted = false;
-
-  /* ── code ticker ── */
-  const randCode = () => {
-    codeEl.textContent = String(100 + Math.floor(Math.random() * 900));
-  };
-
-  /* ── reset ── */
-  const doReset = () => {
-    voted = false;
-    actBtn.disabled = false;
-    actBtn.textContent = 'ACTIVATE MAGI';
-    verdictEl.className = '';
-    verdictEl.textContent = '';
-    [panelB, panelC, panelM].forEach(p => {
-      p.className = p.className.replace(/\s*(voting|resolve|reject|summary)\b/g, '');
-    });
-    panelB.querySelector('.panel-content').textContent = 'BALTHASAR・2';
-    panelC.querySelector('.panel-content').textContent = 'CASPER・3';
-    panelM.querySelector('.panel-content').textContent = 'MELCHIOR・1';
-  };
-
-  /* ── extract first N chars (skip decorative lines) ── */
-  const excerpt = (text, max) => {
-    if (!text) return '';
-    const lines = (text + '').split('\n')
-      .map(l => l.trim())
-      .filter(l => l && !/^[【={▸]/.test(l));
-    return lines.join(' ').slice(0, max || 100);
-  };
-
-  /* ── apply result to a panel ── */
-  const setPanel = (el, text, status) => {
-    el.querySelector('.panel-content').textContent = text;
-    el.classList.add('summary');
-    el.classList.remove('voting');
-    el.classList.remove('resolve');
-    el.classList.remove('reject');
-    el.classList.add(status);
-  };
-
-  /* ── parse verdict ── */
-  const parseVerdict = v => {
-    v = v || '';
-    if (/否决|否定|搁置/.test(v)) {
-      return { b: 'reject', c: 'reject', m: 'reject', final: 'reject' };
-    }
-    if (/二比一/.test(v)) {
-      return { b: 'resolve', c: 'reject', m: 'resolve', final: 'resolve' };
-    }
-    return { b: 'resolve', c: 'resolve', m: 'resolve', final: 'resolve' };
-  };
-
-  /* ── main activate ── */
-  const activate = async () => {
-    if (voted) { doReset(); return; }
-
-    const q = qInput.value.trim();
-    if (!q) {
-      qInput.classList.add('error');
-      qInput.focus();
-      setTimeout(() => qInput.classList.remove('error'), 600);
-      return;
+    /* ── badge size ── */
+    function updateBadgeSize(label) {
+      root.style.setProperty('--badge-size', label === '审议中' ? '19px' : '27px');
     }
 
-    actBtn.disabled = true;
-    randCode();
-    [panelB, panelC, panelM].forEach(p => p.classList.add('voting'));
+    function clearTimer() {
+      if (timer) { clearTimeout(timer); timer = null; }
+    }
 
-    try {
-      const res = await fetch('/api/analyze', {
+    function setVisual(panelColor, uiColor, label) {
+      root.style.setProperty('--panel-fill', panelColor);
+      root.style.setProperty('--ui-color', uiColor);
+      statusBtn.textContent = label;
+      updateBadgeSize(label);
+    }
+
+    /* ── 結果テキストを消す ── */
+    function clearResultText() {
+      ['bal-result', 'cas-result', 'mel-result'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.setAttribute('visibility', 'hidden');
+        while (el.firstChild) el.removeChild(el.firstChild);
+      });
+    }
+
+    function setDefaultState() {
+      clearTimer();
+      screen.classList.remove('processing');
+      inputModal.classList.remove('active');
+      setVisual('var(--blue-panel)', 'var(--blue-ui)', '情报');
+      clearResultText();
+    }
+
+    function openInput() {
+      clearTimer();
+      screen.classList.remove('processing');
+      setVisual('var(--blue-panel)', 'var(--blue-ui)', '情报');
+      clearResultText();
+      inputModal.classList.add('active');
+      queryInput.value = '';
+      queryInput.focus();
+    }
+
+    /* ── テキストを SVG <text> に複数行で書き込む ── */
+    function writeSVGText(id, rawText, charsPerLine, maxLines) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      while (el.firstChild) el.removeChild(el.firstChild);
+      if (!rawText) return;
+
+      /* 空行・装飾行を除去して連結 */
+      const clean = (rawText + '').split('\n')
+        .map(l => l.trim())
+        .filter(l => l && !/^[【={▸]/.test(l))
+        .join(' ')
+        .slice(0, charsPerLine * maxLines);
+
+      /* charsPerLine 文字ごとに tspan */
+      const ns = 'http://www.w3.org/2000/svg';
+      for (let i = 0; i < maxLines; i++) {
+        const chunk = clean.slice(i * charsPerLine, (i + 1) * charsPerLine);
+        if (!chunk) break;
+        const tspan = document.createElementNS(ns, 'tspan');
+        tspan.setAttribute('x', el.getAttribute('x'));
+        tspan.setAttribute('dy', i === 0 ? '0' : '14');
+        tspan.textContent = chunk;
+        el.appendChild(tspan);
+      }
+      el.setAttribute('visibility', 'visible');
+    }
+
+    /* ── 面板に結果を反映 ── */
+    function updatePanelText(data) {
+      writeSVGText('bal-result', data.balthasar, 24, 4);
+      writeSVGText('cas-result', data.casper,    22, 4);
+      writeSVGText('mel-result', data.melchior,  22, 4);
+    }
+
+    /* ── 裁決を解析 ── */
+    function parseVerdict(data) {
+      const v = (data.verdict || data.casper || '');
+      if (/否决|否定|搁置/.test(v)) return 'reject';
+      return 'resolve';
+    }
+
+    /* ── 審議開始（即 API コール） ── */
+    function startDeliberation() {
+      if (!queryInput.value.trim()) return;
+      inputModal.classList.remove('active');
+      screen.classList.add('processing');
+      setVisual('var(--yellow-panel)', 'var(--yellow-ui)', '审议中');
+      clearTimer();
+      codeEl.textContent = String(100 + Math.floor(Math.random() * 900));
+      makeDecision();
+    }
+
+    /* ── 本番 API コール ── */
+    function makeDecision() {
+      const question = queryInput.value.trim();
+
+      fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: q }),
+        body: JSON.stringify({ question })
+      })
+      .then(r => {
+        if (!r.ok) return r.json().then(e => { throw new Error(e.detail || 'HTTP ' + r.status); });
+        return r.json();
+      })
+      .then(data => {
+        screen.classList.remove('processing');
+
+        const result = parseVerdict(data);
+        if (result === 'reject') {
+          setVisual('var(--red-panel)',   'var(--red-ui)',   '否定');
+        } else {
+          setVisual('var(--green-panel)', 'var(--green-ui)', '承認');
+        }
+
+        updatePanelText(data);
+
+        clearTimer();
+        timer = setTimeout(setDefaultState, 5000);
+      })
+      .catch(err => {
+        console.error('MAGI API error:', err);
+        screen.classList.remove('processing');
+        setVisual('var(--red-panel)', 'var(--red-ui)', 'ERROR');
+        clearTimer();
+        timer = setTimeout(setDefaultState, 3000);
       });
-      if (!res.ok) {
-        const e = await res.json().catch(() => ({}));
-        throw new Error(e.detail || 'HTTP ' + res.status);
-      }
-
-      const data = await res.json();
-      const v    = parseVerdict(data.verdict);
-
-      setPanel(panelB, excerpt(data.balthasar, 100), v.b);
-      setPanel(panelC, excerpt(data.casper,    100), v.c);
-      setPanel(panelM, excerpt(data.melchior,  100), v.m);
-
-      verdictEl.className   = v.final;
-      verdictEl.textContent = v.final === 'resolve' ? '承認' : '否定';
-
-      voted = true;
-      actBtn.disabled = false;
-      actBtn.textContent = 'RESET';
-
-    } catch (err) {
-      console.error('MAGI error:', err);
-      [panelB, panelC, panelM].forEach(p => p.classList.remove('voting'));
-      actBtn.disabled = false;
     }
-  };
 
-  /* ── events ── */
-  actBtn.addEventListener('click', activate);
-  qInput.addEventListener('keydown', e => { if (e.key === 'Enter') activate(); });
-  window.addEventListener('keydown', e => {
-    if (e.code === 'Space' && e.target === document.body) {
-      e.preventDefault();
-      activate();
-    }
-  });
-})();
-</script>
+    /* ── イベント ── */
+    statusBtn.addEventListener('click', openInput);
+    confirmBtn.addEventListener('click', startDeliberation);
+    queryInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter')  startDeliberation();
+      if (e.key === 'Escape') inputModal.classList.remove('active');
+    });
+
+    setDefaultState();
+  })();
+  </script>
 </body>
 </html>
