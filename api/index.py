@@ -93,6 +93,11 @@ async def analyze(req: AnalyzeRequest):
         log(traceback.format_exc())
         casper_output = casper.mock_response(req.question)
 
+    m_out = results.get("melchior", "")
+    b_out = results.get("balthasar", "")
+    log(f"[RESPONSE] melchior={m_out[:80]!r}")
+    log(f"[RESPONSE] balthasar={b_out[:80]!r}")
+    log(f"[RESPONSE] casper={casper_output[:80]!r}")
     log(f"[MAGI DONE] verdict={extract_verdict(casper_output)} mock={mock}")
 
     return JSONResponse({
