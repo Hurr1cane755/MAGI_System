@@ -34,19 +34,16 @@ class Caspar(BaseAgent):
     role = "女人"
 
     def call_api(self, question: str, context: str = "") -> str:
-        from openai import OpenAI
+        import google.generativeai as genai
 
-        client = OpenAI(api_key=self._api_key)
-        prompt = f"原始问题：{question}\n\n{context}"
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": prompt},
-            ],
-            max_tokens=1024,
+        genai.configure(api_key=self._api_key)
+        model = genai.GenerativeModel(
+            model_name="gemini-2.0-flash",
+            system_instruction=SYSTEM_PROMPT,
         )
-        return response.choices[0].message.content
+        prompt = f"原始问题：{question}\n\n{context}" if context else question
+        response = model.generate_content(prompt)
+        return response.text
 
     def mock_response(self, question: str) -> str:
         return """【直觉感受】

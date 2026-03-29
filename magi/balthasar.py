@@ -24,16 +24,15 @@ class Balthasar(BaseAgent):
     role = "母亲"
 
     def call_api(self, question: str, context: str = "") -> str:
-        import anthropic
+        import google.generativeai as genai
 
-        client = anthropic.Anthropic(api_key=self._api_key)
-        message = client.messages.create(
-            model="claude-sonnet-4-6",
-            max_tokens=1024,
-            system=SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": question}],
+        genai.configure(api_key=self._api_key)
+        model = genai.GenerativeModel(
+            model_name="gemini-2.0-flash",
+            system_instruction=SYSTEM_PROMPT,
         )
-        return message.content[0].text
+        response = model.generate_content(question)
+        return response.text
 
     def mock_response(self, question: str) -> str:
         return f"""【守护对象分析】

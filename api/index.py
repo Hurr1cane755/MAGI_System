@@ -49,8 +49,8 @@ async def analyze(req: AnalyzeRequest):
         raise HTTPException(status_code=400, detail="问题不能为空")
 
     melchior = Melchior(api_key=config.google_api_key, mock_mode=config.mock_mode)
-    balthasar = Balthasar(api_key=config.anthropic_api_key, mock_mode=config.mock_mode)
-    casper = Caspar(api_key=config.openai_api_key, mock_mode=config.mock_mode)
+    balthasar = Balthasar(api_key=config.google_api_key, mock_mode=config.mock_mode)
+    casper = Caspar(api_key=config.google_api_key, mock_mode=config.mock_mode)
 
     results: dict[str, str] = {}
 
