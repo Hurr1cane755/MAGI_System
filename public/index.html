@@ -5,27 +5,39 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MAGI System Interface</title>
 <style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
   body {
     background-color: #050505;
     display: flex;
     justify-content: center;
     align-items: center;
+    width: 100vw;
     height: 100vh;
-    margin: 0;
-    font-family: 'Courier New', Courier, monospace;
+    overflow: hidden;
+    font-family: 'Microsoft YaHei', 'PingFang SC', 'Noto Sans SC', sans-serif;
     color: #ff8c00;
     user-select: none;
-    overflow: hidden;
   }
 
-  /* 主屏幕容器 */
+  /* ── 外层缩放容器 ── */
+  .scale-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  /* ── 主屏幕 1000×562，JS 动态 scale ── */
   .screen {
     position: relative;
     width: 1000px;
     height: 562px;
     background-color: #000;
     border: 3px solid #ff8c00;
-    box-sizing: border-box;
+    transform-origin: center center;
+    flex-shrink: 0;
   }
 
   /* 内层装饰边框 */
@@ -37,114 +49,109 @@
     z-index: 10;
   }
 
-  /* 屏幕上下的黑橙警示条纹 */
+  /* 上下警示条纹 */
   .hazard-top, .hazard-bottom {
     position: absolute;
-    left: 0; right: 0;
+    left: -3px; right: -3px;
     height: 12px;
     background: repeating-linear-gradient(
       -45deg,
-      #000,
-      #000 10px,
-      #995500 10px,
-      #995500 20px
+      #000 0, #000 10px,
+      #995500 10px, #995500 20px
     );
     border: 1px solid #000;
   }
-  .hazard-top    { top: -14px; }
-  .hazard-bottom { bottom: -14px; }
+  .hazard-top    { top: -15px; }
+  .hazard-bottom { bottom: -15px; }
 
-  /* 左上角区域 */
+  /* ── 左上角 ── */
   .top-left {
     position: absolute;
-    top: 35px;
-    left: 45px;
+    top: 28px;
+    left: 40px;
   }
   .jp-title {
-    font-family: 'Impact', 'SimHei', sans-serif;
-    font-size: 65px;
+    font-family: 'Impact', 'Microsoft YaHei', sans-serif;
+    font-size: 60px;
     font-weight: 900;
-    letter-spacing: 15px;
-    margin: 0;
+    letter-spacing: 14px;
     line-height: 1;
     transform: scaleX(1.1);
     transform-origin: left;
+    display: block;
   }
   .green-lines {
-    width: 280px;
+    width: 260px;
     height: 6px;
     border-top: 2px solid #4caf50;
     border-bottom: 2px solid #4caf50;
-    margin-top: 8px;
-    margin-bottom: 15px;
+    margin-top: 7px;
+    margin-bottom: 12px;
   }
   .code-block {
-    font-size: 15px;
-    line-height: 1.3;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    line-height: 1.4;
     font-weight: bold;
     letter-spacing: 1px;
   }
   .code-main {
-    font-size: 26px;
-    margin-bottom: 5px;
+    font-size: 24px;
+    margin-bottom: 4px;
   }
 
-  /* 右上角区域 */
+  /* ── 右上角 ── */
   .top-right {
     position: absolute;
-    top: 35px;
-    right: 45px;
+    top: 28px;
+    right: 40px;
     text-align: right;
   }
-  .top-right .jp-title {
-    transform-origin: right;
-  }
-  .top-right .green-lines {
-    float: right;
-  }
+  .top-right .jp-title { transform-origin: right; }
+  .top-right .green-lines { float: right; }
 
-  /* 浅蓝色情报徽章 */
+  /* 情報徽章 */
   .info-badge {
     position: absolute;
-    top: 135px;
-    right: 45px;
+    top: 128px;
+    right: 40px;
     border: 3px solid #40BBE3;
-    padding: 6px 12px;
+    padding: 5px 11px;
     color: #40BBE3;
-    font-size: 32px;
+    font-size: 28px;
     font-weight: bold;
-    font-family: 'SimHei', sans-serif;
-    letter-spacing: 6px;
+    font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+    letter-spacing: 5px;
   }
 
-  /* 最终裁决徽章 */
+  /* 最終裁決徽章 */
   #verdict {
     display: none;
     position: absolute;
-    top: 200px;
-    right: 45px;
-    font-size: 30px;
+    top: 195px;
+    right: 40px;
+    font-size: 26px;
     font-weight: bold;
-    font-family: 'SimHei', 'Courier New', sans-serif;
+    font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
     letter-spacing: 4px;
-    padding: 5px 14px;
+    padding: 4px 12px;
     border: 3px solid currentColor;
     z-index: 20;
   }
   #verdict.resolve { display: block; color: #4caf50; }
   #verdict.reject  { display: block; color: #cc0000; }
 
-  /* MAGI 核心面板系统 */
+  /* ── MAGI 面板系统 ── */
   .magi-system {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -52%);
     width: 860px;
-    height: 420px;
+    height: 370px;
   }
 
-  /* 通用面板样式 */
+  /* 通用面板 */
   .panel {
     position: absolute;
     background-color: #40BBE3;
@@ -152,124 +159,122 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: 'Arial', sans-serif;
-    font-size: 36px;
+    font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+    font-size: 30px;
     font-weight: 900;
     letter-spacing: 2px;
     text-align: center;
     padding: 8px;
-    box-sizing: border-box;
-    transition: background-color 0.4s;
+    transition: background-color 0.3s;
   }
   .panel .panel-content {
     font-size: inherit;
     line-height: 1.2;
     word-break: break-word;
+    max-width: 100%;
   }
   .panel.summary .panel-content {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: bold;
     letter-spacing: 0;
     line-height: 1.4;
   }
 
-  /* Balthasar (上方) */
+  /* BALTHASAR — 上方居中，六边形 */
   .balthasar {
     top: 0;
     left: 50%;
     transform: translateX(-50%);
     width: 320px;
-    height: 230px;
+    height: 210px;
     clip-path: polygon(0 0, 100% 0, 100% 75%, 65% 100%, 35% 100%, 0 75%);
-    padding-bottom: 30px;
-    box-sizing: border-box;
+    padding-bottom: 28px;
   }
 
-  /* Casper (左下) */
+  /* CASPER — 左下 */
   .casper {
     bottom: 0;
     left: 20px;
-    width: 360px;
-    height: 200px;
-    clip-path: polygon(0 25%, 62% 25%, 100% 60%, 100% 100%, 0 100%);
-    padding-top: 30px;
-    padding-right: 40px;
-    box-sizing: border-box;
+    width: 340px;
+    height: 185px;
+    clip-path: polygon(0 20%, 60% 20%, 100% 55%, 100% 100%, 0 100%);
+    padding-top: 28px;
+    padding-right: 35px;
   }
 
-  /* Melchior (右下) */
+  /* MELCHIOR — 右下 */
   .melchior {
     bottom: 0;
     right: 20px;
-    width: 360px;
-    height: 200px;
-    clip-path: polygon(0 60%, 38% 25%, 100% 25%, 100% 100%, 0 100%);
-    padding-top: 30px;
-    padding-left: 40px;
-    box-sizing: border-box;
+    width: 340px;
+    height: 185px;
+    clip-path: polygon(0 55%, 40% 20%, 100% 20%, 100% 100%, 0 100%);
+    padding-top: 28px;
+    padding-left: 35px;
   }
 
-  /* 橙色连接线与底座 */
-  .connector {
-    position: absolute;
-    background-color: #ff8c00;
-  }
+  /* 橙色连接线 */
+  .connector { position: absolute; background-color: #ff8c00; }
   .conn-left {
-    width: 60px; height: 8px;
-    top: 220px; left: 330px;
+    width: 55px; height: 7px;
+    top: 196px; left: 328px;
     transform: rotate(43deg);
   }
   .conn-right {
-    width: 60px; height: 8px;
-    top: 220px; right: 330px;
+    width: 55px; height: 7px;
+    top: 196px; right: 328px;
     transform: rotate(-43deg);
   }
   .conn-bottom {
-    width: 140px; height: 8px;
-    bottom: 125px; left: 50%;
+    width: 130px; height: 7px;
+    bottom: 112px; left: 50%;
     transform: translateX(-50%);
   }
   .conn-base {
-    width: 140px; height: 50px;
-    bottom: 75px; left: 50%;
+    width: 130px; height: 46px;
+    bottom: 66px; left: 50%;
     transform: translateX(-50%);
     background-color: #000;
-    border-left: 8px solid #ff8c00;
-    border-right: 8px solid #ff8c00;
+    border-left: 7px solid #ff8c00;
+    border-right: 7px solid #ff8c00;
     z-index: -1;
   }
 
-  /* 中央 MAGI 文字 */
+  /* 中央 MAGI */
   .magi-text {
     position: absolute;
-    top: 250px;
+    top: 232px;
     left: 50%;
     transform: translateX(-50%);
     color: #ff8c00;
     font-family: 'Times New Roman', Times, serif;
-    font-size: 42px;
+    font-size: 38px;
     font-weight: bold;
     letter-spacing: 5px;
+    white-space: nowrap;
   }
 
-  /* 底部命令行输入区 */
+  /* ── 底部输入区 ── */
   .terminal-inputs {
     position: absolute;
-    bottom: 20px;
+    bottom: 15px;
     left: 45px;
     right: 45px;
   }
   .input-line {
     display: flex;
     align-items: center;
-    margin-bottom: 6px;
-    font-size: 16px;
+    margin-bottom: 5px;
+    font-size: 15px;
     font-weight: bold;
+    font-family: 'Courier New', Courier, monospace;
   }
-  .label {
-    width: 130px;
+  .input-label {
+    width: 125px;
+    flex-shrink: 0;
+    color: #ff8c00;
   }
-  .input-box {
+  .input-dots {
     flex-grow: 1;
     border: 1px solid #ff8c00;
     height: 22px;
@@ -277,62 +282,58 @@
     align-items: center;
     padding: 0 8px;
     color: #ff8c00;
-  }
-  .dots {
     letter-spacing: 3px;
   }
-
-  /* 闪烁光标 */
-  .cursor {
-    display: inline-block;
-    width: 10px;
-    height: 16px;
-    background-color: #ff8c00;
-    margin-left: 5px;
-    animation: blink 1s step-start infinite;
+  #question-input {
+    flex-grow: 1;
+    background: #000;
+    border: 1px solid #ff8c00;
+    color: #ff8c00;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 15px;
+    padding: 0 8px;
+    height: 22px;
+    outline: none;
   }
-  @keyframes blink {
-    50% { opacity: 0; }
-  }
+  #question-input::placeholder { opacity: 0.3; }
+  #question-input.error { border-color: #cc0000; }
 
-  /* ── 投票闪烁动画 ── */
-  .panel.voting {
-    animation: panel-flash 0.4s infinite step-end;
-  }
-  @keyframes panel-flash {
-    50% { background-color: #ff0000; }
-  }
-
-  /* 投票结果面板颜色 */
-  .panel.resolve { background-color: #4caf50 !important; animation: none !important; }
-  .panel.reject  { background-color: #cc0000 !important; animation: none !important; }
-
-  /* ACTIVATE 按钮 */
   #activate-btn {
-    margin-top: 8px;
+    margin-top: 7px;
     background: #000;
     border: 2px solid #ff8c00;
     color: #ff8c00;
     font-family: 'Courier New', Courier, monospace;
-    font-size: 16px;
-    padding: 4px 20px;
+    font-size: 15px;
+    padding: 3px 18px;
     cursor: pointer;
     letter-spacing: 3px;
     transition: background 0.15s, color 0.15s;
   }
-  #activate-btn:hover { background: #ff8c00; color: #000; }
+  #activate-btn:hover  { background: #ff8c00; color: #000; }
   #activate-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* ── 投票动画 ── */
+  .panel.voting { animation: panel-flash 0.4s infinite step-end; }
+  @keyframes panel-flash { 50% { background-color: #ff0000; } }
+
+  /* 投票结果颜色 */
+  .panel.resolve { background-color: #4caf50 !important; animation: none !important; }
+  .panel.reject  { background-color: #cc0000 !important; animation: none !important; }
 </style>
 </head>
 <body>
 
+<div class="scale-container">
   <div style="position: relative;">
     <div class="hazard-top"></div>
+
     <div class="screen">
       <div class="border-accent"></div>
 
+      <!-- 左上角 -->
       <div class="top-left">
-        <div class="jp-title">質問</div>
+        <span class="jp-title">質問</span>
         <div class="green-lines"></div>
         <div class="code-block">
           <div class="code-main">CODE:<span id="code-num">473</span></div>
@@ -343,15 +344,17 @@
         </div>
       </div>
 
+      <!-- 右上角 -->
       <div class="top-right">
-        <div class="jp-title">解決</div>
+        <span class="jp-title">解決</span>
         <div class="green-lines"></div>
       </div>
       <div class="info-badge">情報</div>
 
-      <!-- 最終裁決徽章 -->
+      <!-- 裁決徽章 -->
       <div id="verdict"></div>
 
+      <!-- MAGI 面板系统 -->
       <div class="magi-system">
         <div class="panel balthasar" id="panel-balthasar">
           <span class="panel-content">BALTHASAR・2</span>
@@ -371,48 +374,63 @@
         <div class="magi-text">MAGI</div>
       </div>
 
+      <!-- 底部输入区 -->
       <div class="terminal-inputs">
         <div class="input-line">
-          <div class="label">access code:</div>
-          <div class="input-box dots">...................................</div>
+          <span class="input-label">access code:</span>
+          <div class="input-dots">...................................</div>
         </div>
         <div class="input-line">
-          <div class="label">question:</div>
+          <span class="input-label">question:</span>
           <input type="text" id="question-input"
-            style="flex-grow:1; background:#000; border:1px solid #ff8c00; color:#ff8c00;
-                   font-family:'Courier New'; font-size:16px; padding:0 8px; height:22px; outline:none;"
-            placeholder="INPUT DECISION QUERY" autocomplete="off">
+                 placeholder="INPUT DECISION QUERY"
+                 autocomplete="off">
         </div>
         <button id="activate-btn">ACTIVATE MAGI</button>
       </div>
-    </div>
+    </div><!-- .screen -->
+
     <div class="hazard-bottom"></div>
   </div>
+</div><!-- .scale-container -->
 
 <script>
 (function () {
   'use strict';
 
-  const panelB   = document.getElementById('panel-balthasar');
-  const panelC   = document.getElementById('panel-casper');
-  const panelM   = document.getElementById('panel-melchior');
-  const qInput   = document.getElementById('question-input');
-  const actBtn   = document.getElementById('activate-btn');
-  const verdictEl= document.getElementById('verdict');
-  const codeEl   = document.getElementById('code-num');
+  /* ── 等比缩放适配屏幕 ── */
+  function resizeScreen() {
+    const scaleX = window.innerWidth  / 1060;
+    const scaleY = window.innerHeight / 620;
+    const scale  = Math.min(scaleX, scaleY);
+    document.querySelector('.screen').style.transform = 'scale(' + scale + ')';
+  }
+  window.addEventListener('resize', resizeScreen);
+  resizeScreen();
+
+  /* ── refs ── */
+  const panelB    = document.getElementById('panel-balthasar');
+  const panelC    = document.getElementById('panel-casper');
+  const panelM    = document.getElementById('panel-melchior');
+  const qInput    = document.getElementById('question-input');
+  const actBtn    = document.getElementById('activate-btn');
+  const verdictEl = document.getElementById('verdict');
+  const codeEl    = document.getElementById('code-num');
 
   let voted = false;
 
-  /* ── random code ticker ── */
-  const randCode = () => { codeEl.textContent = String(100 + Math.floor(Math.random() * 900)); };
+  /* ── code ticker ── */
+  const randCode = () => {
+    codeEl.textContent = String(100 + Math.floor(Math.random() * 900));
+  };
 
-  /* ── reset to initial state ── */
+  /* ── reset ── */
   const doReset = () => {
     voted = false;
     actBtn.disabled = false;
+    actBtn.textContent = 'ACTIVATE MAGI';
     verdictEl.className = '';
     verdictEl.textContent = '';
-
     [panelB, panelC, panelM].forEach(p => {
       p.className = p.className.replace(/\s*(voting|resolve|reject|summary)\b/g, '');
     });
@@ -421,59 +439,49 @@
     panelM.querySelector('.panel-content').textContent = 'MELCHIOR・1';
   };
 
-  /* ── extract first ~100 chars of agent reply ── */
+  /* ── extract first N chars (skip decorative lines) ── */
   const excerpt = (text, max) => {
     if (!text) return '';
-    const cleaned = (text + '').split('\n')
+    const lines = (text + '').split('\n')
       .map(l => l.trim())
-      .filter(l => l && !/^[【={▸]/.test(l))
-      .join(' ');
-    return cleaned.slice(0, max || 100);
+      .filter(l => l && !/^[【={▸]/.test(l));
+    return lines.join(' ').slice(0, max || 100);
   };
 
-  /* ── set panel content + styling ── */
+  /* ── apply result to a panel ── */
   const setPanel = (el, text, status) => {
     el.querySelector('.panel-content').textContent = text;
-    // shrink font for summary text
     el.classList.add('summary');
-    // set color class
     el.classList.remove('voting');
-    if (status === 'resolve') {
-      el.classList.add('resolve');
-      el.classList.remove('reject');
-    } else {
-      el.classList.add('reject');
-      el.classList.remove('resolve');
-    }
+    el.classList.remove('resolve');
+    el.classList.remove('reject');
+    el.classList.add(status);
   };
 
-  /* ── parse verdict string ── */
-  const parseVerdict = (v) => {
+  /* ── parse verdict ── */
+  const parseVerdict = v => {
     v = v || '';
-    if (v.includes('否决') || v.includes('否定') || v.includes('搁置')) {
+    if (/否决|否定|搁置/.test(v)) {
       return { b: 'reject', c: 'reject', m: 'reject', final: 'reject' };
     }
-    if (v.includes('二比一')) {
-      // casper is the deciding dissenter
+    if (/二比一/.test(v)) {
       return { b: 'resolve', c: 'reject', m: 'resolve', final: 'resolve' };
     }
-    // 全体一致通过 or default
     return { b: 'resolve', c: 'resolve', m: 'resolve', final: 'resolve' };
   };
 
-  /* ── main activate logic ── */
+  /* ── main activate ── */
   const activate = async () => {
     if (voted) { doReset(); return; }
 
     const q = qInput.value.trim();
     if (!q) {
-      qInput.style.borderColor = '#cc0000';
+      qInput.classList.add('error');
       qInput.focus();
-      setTimeout(() => { qInput.style.borderColor = '#ff8c00'; }, 600);
+      setTimeout(() => qInput.classList.remove('error'), 600);
       return;
     }
 
-    /* enter voting state */
     actBtn.disabled = true;
     randCode();
     [panelB, panelC, panelM].forEach(p => p.classList.add('voting'));
@@ -484,21 +492,18 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: q }),
       });
-
       if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.detail || 'HTTP ' + res.status);
+        const e = await res.json().catch(() => ({}));
+        throw new Error(e.detail || 'HTTP ' + res.status);
       }
 
       const data = await res.json();
-      const v = parseVerdict(data.verdict);
+      const v    = parseVerdict(data.verdict);
 
-      /* update panels */
       setPanel(panelB, excerpt(data.balthasar, 100), v.b);
       setPanel(panelC, excerpt(data.casper,    100), v.c);
       setPanel(panelM, excerpt(data.melchior,  100), v.m);
 
-      /* verdict badge */
       verdictEl.className   = v.final;
       verdictEl.textContent = v.final === 'resolve' ? '承認' : '否定';
 
@@ -513,14 +518,9 @@
     }
   };
 
-  /* ── bind events ── */
+  /* ── events ── */
   actBtn.addEventListener('click', activate);
-
-  qInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter') activate();
-  });
-
-  /* Space on body triggers activate */
+  qInput.addEventListener('keydown', e => { if (e.key === 'Enter') activate(); });
   window.addEventListener('keydown', e => {
     if (e.code === 'Space' && e.target === document.body) {
       e.preventDefault();
@@ -529,6 +529,5 @@
   });
 })();
 </script>
-
 </body>
 </html>
