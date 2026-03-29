@@ -241,49 +241,86 @@ body {
 .connection.casper-melchior    { grid-area: casper-melchior-connection; }
 .connection.balthasar-melchior { grid-area: balthasar-melchior-connection; transform: rotate(54deg); }
 
-/* ── 入力エリア ── */
-.input-area {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 12px;
-  font-family: 'Lucida Console', 'Courier New', monospace;
+/* ── 情報バッジにカーソルを示す ── */
+.magi > .response { cursor: pointer; }
+.magi > .response:hover { filter: brightness(1.2); }
+
+/* ── 入力浮窗（情報クリックで出現） ── */
+.input-modal {
+  display: none;
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  z-index: 60;
+  border: 2px solid #ff8d00;
+  background: #000;
   color: #ff8d00;
+  font-family: 'Lucida Console', 'Courier New', monospace;
+  min-width: 320px;
+  max-width: 480px;
 }
-.input-area label {
-  font-size: 12px;
+.input-modal.open { display: block; }
+
+.input-modal-header {
+  display: flex;
+  border-bottom: 2px solid #ff8d00;
+}
+.input-modal-title {
+  flex: 1;
+  padding: 5px 8px;
+  font-size: 11px;
   font-weight: bold;
-  letter-spacing: 1px;
-  white-space: nowrap;
+  letter-spacing: 2px;
+  background: repeating-linear-gradient(45deg,#000 0,#000 10px,#1a0d00 10px,#1a0d00 20px);
 }
-.input-area input {
+.input-modal-close {
+  padding: 5px 10px;
+  border-left: 2px solid #ff8d00;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 13px;
+}
+.input-modal-close:hover { background: #ff8d00; color: #000; }
+
+.input-modal-body {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.input-modal-body label {
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  opacity: .7;
+}
+.input-modal-body input {
+  width: 100%;
   background: #0e0800;
   border: 2px solid #ff8d00;
   color: #ff8d00;
   font-family: 'Lucida Console', 'Courier New', monospace;
   font-size: 13px;
-  padding: 4px 7px;
+  padding: 5px 8px;
   outline: none;
 }
-.input-area input:focus        { border-color: #ffc060; }
-.input-area input::placeholder { color: rgba(255,141,0,.3); }
-.input-area input#accessInput  { width: 110px; flex-shrink: 0; }
-.input-area input#queryInput   { flex: 1; min-width: 0; }
+.input-modal-body input:focus        { border-color: #ffc060; }
+.input-modal-body input::placeholder { color: rgba(255,141,0,.3); }
 
 .submit-btn {
-  flex-shrink: 0;
+  align-self: flex-end;
   background: transparent;
   border: 2px solid #ff8d00;
   color: #ff8d00;
   font-family: 'Noto Serif JP', serif;
   font-size: 13px;
   font-weight: 900;
-  padding: 4px 14px;
+  padding: 5px 18px;
   letter-spacing: 3px;
   cursor: pointer;
   transition: background .15s, color .15s;
   white-space: nowrap;
+  margin-top: 2px;
 }
 .submit-btn:hover:not(:disabled) { background: #ff8d00; color: #000; }
 .submit-btn:disabled              { opacity: .35; cursor: not-allowed; }
@@ -389,13 +426,20 @@ body {
 
   </div><!-- .magi -->
 
-  <div class="input-area">
-    <label>識別碼:</label>
-    <input type="password" id="accessInput" autocomplete="off" placeholder="••••••••" />
-    <label>諮　問:</label>
-    <input type="text" id="queryInput" autocomplete="off"
-           placeholder="輸入審議事項，按 Enter 或點擊起動" />
-    <button class="submit-btn" id="submitBtn">起　動</button>
+  <!-- 情報バッジクリックで開く入力浮窗 -->
+  <div class="input-modal" id="inputModal">
+    <div class="input-modal-header">
+      <div class="input-modal-title">MAGI — 審議提訴入力</div>
+      <div class="input-modal-close" id="inputModalClose">✕</div>
+    </div>
+    <div class="input-modal-body">
+      <label>識別碼</label>
+      <input type="password" id="accessInput" autocomplete="off" placeholder="••••••••" />
+      <label>諮　問</label>
+      <input type="text" id="queryInput" autocomplete="off"
+             placeholder="輸入審議事項，按 Enter 提交" />
+      <button class="submit-btn" id="submitBtn">起　動</button>
+    </div>
   </div>
 
   <!-- 三個面板的詳情模態 -->
@@ -549,6 +593,9 @@ body {
     submitBtn.textContent = '審　議';
     codeEl.textContent    = String(Math.floor(100 + Math.random() * 900));
 
+    // 入力浮窗を閉じる
+    closeInputModal();
+
     // 審議中バッジ（黄色フリッカー）
     setBadge('voting');
     responseEl.classList.add('badge-voting');
@@ -607,6 +654,26 @@ body {
     document.getElementById('modal-' + name).style.display = 'block';
   }
 
+  /* ── 入力浮窗開閉 ── */
+  const inputModal = document.getElementById('inputModal');
+
+  function openInputModal() {
+    if (processing) return;
+    document.querySelectorAll('.modal').forEach(m => { m.style.display = 'none'; });
+    inputModal.classList.add('open');
+    queryEl.focus();
+  }
+  function closeInputModal() {
+    inputModal.classList.remove('open');
+  }
+
+  responseEl.addEventListener('click', () => {
+    if (inputModal.classList.contains('open')) closeInputModal();
+    else openInputModal();
+  });
+
+  document.getElementById('inputModalClose').addEventListener('click', closeInputModal);
+
   /* ── イベントバインド ── */
   Object.keys(PANELS).forEach(n => {
     PANELS[n].wm.addEventListener('click', () => openModal(n));
@@ -626,8 +693,10 @@ body {
   });
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape')
+    if (e.key === 'Escape') {
+      closeInputModal();
       document.querySelectorAll('.modal').forEach(m => { m.style.display = 'none'; });
+    }
   });
 
   reset();
