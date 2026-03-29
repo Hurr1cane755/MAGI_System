@@ -1,499 +1,598 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MAGI System - Responsive Layout</title>
-  <style>
-    :root {
-      --bg: #000000;
-      --orange: #f39a2e;
-      --green-line: #7cff9c;
-      --blue-panel: #77b3d8;
-      --blue-ui: #7fbfff;
-      --yellow-panel: #efe08a;
-      --yellow-ui: #efe08a;
-      --green-panel: #8eff9f;
-      --green-ui: #8eff9f;
-      --red-panel: #d94a4a;
-      --red-ui: #d94a4a;
-      --panel-fill: var(--blue-panel);
-      --ui-color: var(--blue-ui);
-      --badge-size: 27px;
-    }
-    * { box-sizing: border-box; }
-    html, body {
-      margin: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      overflow: hidden;
-      font-family: "Courier New", Courier, monospace;
-    }
-    body {
-      display: grid;
-      place-items: center;
-      user-select: none;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MAGI System</title>
+<style>
+html {
+  background: repeating-linear-gradient(45deg, rgb(0 0 0) 0px, rgb(0 0 0) 20px, #140b02 20px, #140b02 40px);
+  min-height: 100vh;
+}
 
-    .core {
-      position: relative;
-      width: min(96vw, calc(96vh * 1.9047619));
-      aspect-ratio: 800 / 420;
-      background: var(--bg);
-      border: 2px solid var(--orange);
-      overflow: hidden;
-      container-type: size;
-    }
-    .scanlines {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      opacity: .08;
-      background: repeating-linear-gradient(
-        to bottom,
-        rgba(255,255,255,.02) 0,
-        rgba(255,255,255,.02) 1px,
-        transparent 1px,
-        transparent 4px
-      );
-      mix-blend-mode: screen;
-    }
+body {
+  margin: 15px;
+}
 
-    /* ── タイトル帯 ── */
-    .title-area {
-      position: absolute;
-      top: 1.9%;
-      width: 31.875%;
-      height: 22.38%;
-      color: var(--orange);
-      z-index: 3;
-    }
-    .title-left  { left: 1%; }
-    .title-right { right: 1%; }
-    .rail {
-      position: absolute;
-      left: 0;
-      width: 100%;
-      height: 10.64%;
-    }
-    .rail::before,
-    .rail::after {
-      content: "";
-      position: absolute;
-      left: 0; right: 0;
-      height: 2px;
-      background: var(--green-line);
-      box-shadow: 0 0 4px rgba(124,255,156,.24);
-    }
-    .rail::before { top: 10%; }
-    .rail::after  { top: 50%; }
-    .rail.top    { top: 0; }
-    .rail.bottom { bottom: 0; }
-    .title {
-      position: absolute;
-      left: 0; right: 0;
-      top: 15%;
-      margin: 0;
-      color: var(--orange);
-      font-family: "Arial Black", "Microsoft YaHei", "PingFang SC", sans-serif;
-      font-size: clamp(24px, 7.75cqw, 62px);
-      line-height: 1;
-      font-weight: 900;
-      letter-spacing: .08em;
-      transform: scaleX(1.02);
-      text-align: center;
-    }
+.system {
+  background: black;
+  border: 2px solid #ff8d00;
+  padding: 15px;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  margin: 0 auto;
+}
 
-    /* ── 左下情報ブロック ── */
-    .meta {
-      position: absolute;
-      left: 2.25%;
-      top: 25.95%;
-      color: var(--orange);
-      z-index: 3;
-      line-height: 1.06;
-      font-weight: 700;
-    }
-    .meta .main {
-      font-size: clamp(12px, 3.05cqw, 24px);
-      margin-bottom: .18em;
-    }
-    .meta .row {
-      font-size: clamp(8px, 1.75cqw, 14px);
-      white-space: nowrap;
-    }
+.magi {
+  display: grid;
+  grid-template-columns:
+    [left-header-start]
+    20px
+    [casper-start status]
+    2fr
+    [left-header-end balthasar-start casper-balthasar-connection]
+    0.5fr
+    [casper-end title casper-melchior-connection]
+    1fr
+    [balthasar-melchior-connection melchior-start]
+    0.5fr
+    [right-header-start balthasar-end response]
+    2fr
+    [melchior-end]
+    20px
+    [right-header-end];
+  grid-template-rows:
+    20px
+    [header balthasar-start]
+    2fr
+    [status response]
+    2fr
+    [casper-start melchior-start casper-balthasar-connection balthasar-melchior-connection]
+    1fr
+    [balthasar-end title casper-melchior-connection]
+    3fr
+    [casper-end melchior-end]
+    20px;
+  aspect-ratio: 2 / 1;
+  container-type: size;
+  border: 2px solid #ff8d00;
+}
 
-    /* ── 情報バッジ（質問スタイル） ── */
-    .status-badge {
-      position: absolute;
-      left: 86.75%;
-      top: 30.48%;
-      width: 9.5%;
-      height: 15.25%;
-      border: 2px solid var(--orange);
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,.85);
-      background: rgba(0,0,0,.45);
-      color: var(--ui-color);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: "Arial Black", "Microsoft YaHei", sans-serif;
-      font-size: var(--badge-size);
-      font-weight: 900;
-      letter-spacing: .06em;
-      cursor: pointer;
-      z-index: 4;
-      padding: 0;
-      overflow: hidden;
-    }
-    /* 質問タイトル風の緑レール装飾 */
-    .status-badge::before,
-    .status-badge::after {
-      content: "";
-      position: absolute;
-      left: 8%;
-      right: 8%;
-      height: 1.5px;
-      background: var(--green-line);
-      box-shadow: 0 0 3px rgba(124,255,156,.35);
-    }
-    .status-badge::before { top: 10%; }
-    .status-badge::after  { bottom: 10%; }
+.magi > .title {
+  grid-area: title / title;
+  color: #ff8d00;
+  text-align: center;
+  font-size: 9cqh;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
 
-    /* ── SVG レイアウト ── */
-    .layout-svg {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1;
-    }
-    .panel {
-      fill: var(--panel-fill);
-      stroke: var(--orange);
-      stroke-width: 2;
-      transition: fill .22s ease, opacity .22s ease;
-    }
-    .bus {
-      stroke: var(--orange);
-      stroke-width: 6;
-      fill: none;
-      stroke-linecap: square;
-    }
-    .label {
-      fill: #000;
-      font-family: Arial, Helvetica, sans-serif;
-      font-weight: 900;
-      letter-spacing: 1px;
-      text-anchor: middle;
-      dominant-baseline: middle;
-      pointer-events: none;
-    }
-    .bal-label { font-size: 28px; }
-    .cas-label,
-    .mel-label { font-size: 26px; }
-    .magi-label {
-      fill: var(--orange);
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: 28px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-anchor: middle;
-      dominant-baseline: middle;
-      pointer-events: none;
-    }
-    /* 結果テキスト（面板内の小文字） */
-    .result-text {
-      fill: #000;
-      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
-      font-size: 11px;
-      font-weight: 700;
-      text-anchor: middle;
-      dominant-baseline: auto;
-      pointer-events: none;
-    }
+.magi > .header {
+  overflow: hidden;
+}
 
-    /* ── 入力モーダル ── */
-    .input-modal {
-      position: absolute;
-      left: 50%;
-      bottom: 3.8%;
-      transform: translateX(-50%);
-      width: min(78%, 560px);
-      display: none;
-      background: rgba(0,0,0,.96);
-      border: 2px solid var(--orange);
-      padding: 12px;
-      z-index: 8;
-    }
-    .input-modal.active { display: block; }
-    .input-title {
-      color: var(--orange);
-      font-size: clamp(10px, 1.8cqw, 14px);
-      font-weight: 700;
-      margin-bottom: 8px;
-      letter-spacing: 1px;
-    }
-    .input-row {
-      display: flex;
-      gap: 8px;
-    }
-    .query-input {
-      flex: 1;
-      min-width: 0;
-      background: transparent;
-      border: 1px solid var(--orange);
-      color: var(--blue-ui);
-      padding: 8px 10px;
-      font-size: clamp(12px, 2cqw, 16px);
-      outline: none;
-      font-family: inherit;
-    }
-    .query-input::placeholder {
-      color: rgba(127,191,255,.6);
-    }
-    .query-btn {
-      border: 1px solid var(--orange);
-      background: var(--orange);
-      color: #000;
-      padding: 0 18px;
-      font-size: clamp(11px, 1.75cqw, 14px);
-      font-weight: 900;
-      cursor: pointer;
-      font-family: "Microsoft YaHei", sans-serif;
-    }
+.magi > .header > hr {
+  border: 2px solid #277547;
+  height: 4px;
+  margin: 2px;
+}
 
-    /* ── 審議中アニメーション ── */
-    .processing .panel {
-      animation: panelPulse .5s infinite steps(1);
-    }
-    @keyframes panelPulse {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: .78; }
-    }
-  </style>
+.magi > .header > span {
+  color: #ff8d00;
+  font-size: 10cqh;
+  display: flex;
+  justify-content: center;
+  font-weight: bold;
+  transform: scaleX(2);
+}
+
+.magi > .header.left {
+  grid-area: header / left-header-start / auto / left-header-end;
+}
+
+.magi > .header.right {
+  grid-area: header / right-header-start / auto / right-header-end;
+}
+
+.magi > .system-status {
+  grid-area: status;
+  font-family: 'Lucida Console', 'Courier New', monospace;
+  color: #ff8d00;
+}
+
+.magi > .system-status > div {
+  font-size: 3cqh;
+  margin-left: 4cqw;
+  transform: scaleX(1.2);
+  transform-origin: left;
+}
+
+.magi > .system-status > div:first-child {
+  font-size: 6cqh;
+  margin-left: 0;
+}
+
+.magi > .response {
+  grid-area: response;
+  justify-self: flex-end;
+  align-self: center;
+  border: solid 2px;
+  padding: 2px;
+  display: none;
+}
+
+.magi > .response.visible {
+  display: block;
+}
+
+.magi > .response > .inner {
+  white-space: nowrap;
+  border: solid 2px;
+  padding: 2px 10px;
+  font-size: 8cqh;
+  font-weight: bold;
+}
+
+.magi > .wise-man {
+  display: flex;
+  background: #ff8d00;
+  padding: 2px;
+  cursor: pointer;
+}
+
+.magi > .wise-man > .inner {
+  width: 100%;
+  height: 100%;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 8cqh;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 5%;
+  line-height: 1.15;
+}
+
+.magi > .wise-man.melchior {
+  grid-area: melchior-start / melchior-start / melchior-end / melchior-end;
+}
+
+.magi > .wise-man.melchior,
+.magi > .wise-man.melchior > .inner {
+  clip-path: polygon(35% 0, 100% 0, 100% 100%, 0 100%, 0 44%);
+}
+
+.magi > .wise-man.balthasar {
+  grid-area: balthasar-start / balthasar-start / balthasar-end / balthasar-end;
+}
+
+.magi > .wise-man.balthasar,
+.magi > .wise-man.balthasar > .inner {
+  clip-path: polygon(0 0, 100% 0, 100% 80%, 75% 100%, 25% 100%, 0 80%);
+}
+
+.magi > .wise-man.casper {
+  grid-area: casper-start / casper-start / casper-end / casper-end;
+}
+
+.magi > .wise-man.casper,
+.magi > .wise-man.casper > .inner {
+  clip-path: polygon(0 0, 65% 0, 100% 44%, 100% 100%, 0 100%);
+}
+
+/* ── Voted state ── */
+.magi > .wise-man.voted > .inner {
+  font-size: 4cqh;
+  line-height: 1.4;
+  font-family: 'Lucida Console', 'Courier New', monospace;
+  word-break: break-all;
+}
+
+.magi > .wise-man.voted.resolve             { background: #1a521a; }
+.magi > .wise-man.voted.resolve > .inner    { color: #aaff99; }
+
+.magi > .wise-man.voted.reject              { background: #5a1010; }
+.magi > .wise-man.voted.reject > .inner     { color: #ffaaaa; }
+
+/* ── Response badge colors ── */
+.magi > .response.resolve { color: #8eff9f; }
+.magi > .response.reject  { color: #d94a4a; }
+
+@keyframes flicker-animation {
+  0%   {}
+  50%  { background: black; color: black; border-color: black; }
+}
+
+.flicker {
+  animation: flicker-animation 0.25s infinite step-end;
+}
+
+.connection {
+  height: 10px;
+  background: #ff8d00;
+  align-self: center;
+  margin: -10%;
+}
+
+.connection.casper-balthasar {
+  grid-area: casper-balthasar-connection;
+  transform: rotate(-54deg);
+}
+
+.connection.casper-melchior {
+  grid-area: casper-melchior-connection;
+}
+
+.connection.balthasar-melchior {
+  grid-area: balthasar-melchior-connection;
+  transform: rotate(54deg);
+}
+
+/* ── Modal ── */
+.modal {
+  border: 2px solid #ff8d00;
+  color: #ff8d00;
+  font-family: 'Lucida Console', 'Courier New', monospace;
+  position: absolute;
+  background: black;
+  max-width: 60%;
+  top: 10%;
+  right: 10%;
+  z-index: 100;
+}
+
+.modal > .modal-header {
+  display: flex;
+  flex-direction: row;
+  border-bottom: 2px solid #ff8d00;
+}
+
+.modal > .modal-header > .modal-title {
+  flex: 1;
+  padding: 5px;
+  background: repeating-linear-gradient(45deg, rgb(0 0 0) 0px, rgb(0 0 0) 10px, #211200 10px, #211200 20px);
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.modal > .modal-header > .close {
+  padding: 5px 9px;
+  border-left: 2px solid #ff8d00;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.modal > .modal-header > .close:hover {
+  background: #ff8d00;
+  color: black;
+}
+
+.modal > .modal-body {
+  display: grid;
+  grid-template-columns: auto auto;
+  column-gap: 10px;
+  padding: 10px;
+  align-items: center;
+}
+
+.input-container {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  color: #ff8d00;
+  font-family: 'Lucida Console', 'Courier New', monospace;
+  column-gap: 10px;
+  row-gap: 5px;
+  margin-top: 5px;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  align-items: center;
+}
+
+.input-container > input {
+  background: #1f1203;
+  border: 2px solid #ff8d00;
+  color: #ff8d00;
+  font-family: 'Lucida Console', 'Courier New', monospace;
+  font-size: 13px;
+  padding: 3px 6px;
+  outline: none;
+}
+
+.input-container > input::placeholder {
+  color: rgba(255, 141, 0, 0.4);
+}
+
+.activate-btn {
+  grid-column: 1 / 3;
+  margin-top: 10px;
+  background: transparent;
+  border: 2px solid #ff8d00;
+  color: #ff8d00;
+  font-family: 'Lucida Console', 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  padding: 6px 20px;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.15s, color 0.15s;
+}
+
+.activate-btn:hover {
+  background: #ff8d00;
+  color: black;
+}
+
+.activate-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+</style>
 </head>
 <body>
-  <div class="core" id="screen">
-    <div class="scanlines"></div>
 
-    <div class="title-area title-left">
-      <div class="rail top"></div>
-      <h1 class="title">提诉</h1>
-      <div class="rail bottom"></div>
-    </div>
-    <div class="title-area title-right">
-      <div class="rail top"></div>
-      <h1 class="title">决议</h1>
-      <div class="rail bottom"></div>
+<div class="system">
+  <div class="magi" id="magi">
+
+    <!-- 左上ヘッダー -->
+    <div class="header left">
+      <hr><span>提訴</span><hr>
     </div>
 
-    <div class="meta">
-      <div class="main">CODE:<span id="code-num">473</span></div>
-      <div class="row">FILE:MAGI_SYS</div>
-      <div class="row">EXTENTION:3023</div>
-      <div class="row">EX_MODE:OFF</div>
-      <div class="row">PRIORITY:AAA</div>
+    <!-- 右上ヘッダー -->
+    <div class="header right">
+      <hr><span>決議</span><hr>
     </div>
 
-    <!-- 情報バッジ（質問スタイル、クリックで入力を開く） -->
-    <button class="status-badge" id="statusBtn" type="button">情报</button>
-
-    <svg class="layout-svg" viewBox="0 0 800 420"
-         xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-
-      <!-- 接続ライン -->
-      <line class="bus" x1="300" y1="232" x2="286" y2="206" />
-      <line class="bus" x1="500" y1="232" x2="514" y2="206" />
-      <line class="bus" x1="400" y1="274" x2="400" y2="330" />
-      <line class="bus" x1="331" y1="330" x2="469" y2="330" />
-
-      <!-- 三面板 -->
-      <polygon class="panel" points="265,3 537,3 537,182 456,247 344,247 265,182" />
-      <polygon class="panel" points="12,198 219,198 331,280 331,406 12,406" />
-      <polygon class="panel" points="788,198 581,198 469,280 469,406 788,406" />
-
-      <!-- 面板ラベル -->
-      <text class="label bal-label" x="401" y="129">BALTHASAR • 2</text>
-      <text class="label cas-label" x="173" y="308">CASPER • 3</text>
-      <text class="label mel-label" x="627" y="308">MELCHIOR • 1</text>
-      <text class="magi-label"      x="400" y="291">MAGI</text>
-
-      <!-- 結果テキスト（API応答後に表示） -->
-      <text id="bal-result" class="result-text" x="401" y="162" visibility="hidden"></text>
-      <text id="cas-result" class="result-text" x="172" y="335" visibility="hidden"></text>
-      <text id="mel-result" class="result-text" x="628" y="335" visibility="hidden"></text>
-    </svg>
-
-    <div class="input-modal" id="inputModal">
-      <div class="input-title">PLEASE ENTER YOUR QUESTION:</div>
-      <div class="input-row">
-        <input id="queryInput" class="query-input" type="text"
-               placeholder="输入你想审议的问题..." autocomplete="off" />
-        <button id="confirmBtn" class="query-btn" type="button">确认</button>
-      </div>
+    <!-- システム情報 -->
+    <div class="system-status">
+      <div>CODE:<span id="code-num">473</span></div>
+      <div>FILE:MAGI_SYS</div>
+      <div>EXTENTION:3023</div>
+      <div>EX_MODE:OFF</div>
+      <div>PRIORITY:AAA</div>
     </div>
+
+    <!-- 裁決バッジ（右上） -->
+    <div class="response" id="response">
+      <div class="inner" id="response-inner"></div>
+    </div>
+
+    <!-- 中央タイトル（クリックで入力を開く） -->
+    <div class="title" id="magi-title" title="Click to deliberate">MAGI</div>
+
+    <!-- 三面板 -->
+    <div class="wise-man balthasar" id="balthasar">
+      <div class="inner" id="balthasar-inner">BALTHASAR・2</div>
+    </div>
+
+    <div class="wise-man casper" id="casper">
+      <div class="inner" id="casper-inner">CASPER・3</div>
+    </div>
+
+    <div class="wise-man melchior" id="melchior">
+      <div class="inner" id="melchior-inner">MELCHIOR・1</div>
+    </div>
+
+    <!-- 接続ライン -->
+    <div class="connection casper-balthasar"></div>
+    <div class="connection casper-melchior"></div>
+    <div class="connection balthasar-melchior"></div>
   </div>
 
-  <script>
-  (function () {
-    'use strict';
+  <!-- 入力モーダル -->
+  <div class="modal" id="modal" style="display:none;">
+    <div class="modal-header">
+      <div class="modal-title">■ MAGI DELIBERATION SYSTEM — QUERY INPUT</div>
+      <div class="close" id="closeBtn">×</div>
+    </div>
+    <div class="modal-body">
+      <div style="grid-column:1/3;">
+        <div class="input-container">
+          <span>QUERY&nbsp;&nbsp;:</span>
+          <input type="text" id="queryInput" placeholder="输入审议问题…" autocomplete="off" />
+          <span>ACCESS :</span>
+          <input type="text" value=".............................." readonly tabindex="-1" />
+        </div>
+      </div>
+      <button class="activate-btn" id="confirmBtn" type="button">ACTIVATE MAGI</button>
+    </div>
+  </div>
+</div>
 
-    const screen    = document.getElementById('screen');
-    const statusBtn = document.getElementById('statusBtn');
-    const inputModal= document.getElementById('inputModal');
-    const queryInput= document.getElementById('queryInput');
-    const confirmBtn= document.getElementById('confirmBtn');
-    const codeEl    = document.getElementById('code-num');
-    const root      = document.documentElement;
+<script>
+(function () {
+  'use strict';
 
-    let timer = null;
+  const magiEl    = document.getElementById('magi');
+  const modal     = document.getElementById('modal');
+  const closeBtn  = document.getElementById('closeBtn');
+  const queryInput= document.getElementById('queryInput');
+  const confirmBtn= document.getElementById('confirmBtn');
+  const responseEl= document.getElementById('response');
+  const responseIn= document.getElementById('response-inner');
+  const codeEl    = document.getElementById('code-num');
 
-    /* ── badge size ── */
-    function updateBadgeSize(label) {
-      root.style.setProperty('--badge-size', label === '审议中' ? '19px' : '27px');
-    }
+  const panels = {
+    balthasar: {
+      el:    document.getElementById('balthasar'),
+      inner: document.getElementById('balthasar-inner'),
+      def:   'BALTHASAR・2',
+    },
+    casper: {
+      el:    document.getElementById('casper'),
+      inner: document.getElementById('casper-inner'),
+      def:   'CASPER・3',
+    },
+    melchior: {
+      el:    document.getElementById('melchior'),
+      inner: document.getElementById('melchior-inner'),
+      def:   'MELCHIOR・1',
+    },
+  };
 
-    function clearTimer() {
-      if (timer) { clearTimeout(timer); timer = null; }
-    }
+  let voting = false, voted = false;
 
-    function setVisual(panelColor, uiColor, label) {
-      root.style.setProperty('--panel-fill', panelColor);
-      root.style.setProperty('--ui-color', uiColor);
-      statusBtn.textContent = label;
-      updateBadgeSize(label);
-    }
+  /* ── ランダムコード ── */
+  const randCode = () => {
+    codeEl.textContent = String(100 + Math.floor(Math.random() * 900));
+  };
 
-    /* ── 結果テキストを消す ── */
-    function clearResultText() {
-      ['bal-result', 'cas-result', 'mel-result'].forEach(id => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.setAttribute('visibility', 'hidden');
-        while (el.firstChild) el.removeChild(el.firstChild);
-      });
-    }
+  /* ── リセット ── */
+  const doReset = () => {
+    voting = voted = false;
+    confirmBtn.disabled = false;
+    confirmBtn.textContent = 'ACTIVATE MAGI';
 
-    function setDefaultState() {
-      clearTimer();
-      screen.classList.remove('processing');
-      inputModal.classList.remove('active');
-      setVisual('var(--blue-panel)', 'var(--blue-ui)', '情报');
-      clearResultText();
-    }
-
-    function openInput() {
-      clearTimer();
-      screen.classList.remove('processing');
-      setVisual('var(--blue-panel)', 'var(--blue-ui)', '情报');
-      clearResultText();
-      inputModal.classList.add('active');
-      queryInput.value = '';
-      queryInput.focus();
-    }
-
-    /* ── テキストを SVG <text> に複数行で書き込む ── */
-    function writeSVGText(id, rawText, charsPerLine, maxLines) {
-      const el = document.getElementById(id);
-      if (!el) return;
-      while (el.firstChild) el.removeChild(el.firstChild);
-      if (!rawText) return;
-
-      /* 空行・装飾行を除去して連結 */
-      const clean = (rawText + '').split('\n')
-        .map(l => l.trim())
-        .filter(l => l && !/^[【={▸]/.test(l))
-        .join(' ')
-        .slice(0, charsPerLine * maxLines);
-
-      /* charsPerLine 文字ごとに tspan */
-      const ns = 'http://www.w3.org/2000/svg';
-      for (let i = 0; i < maxLines; i++) {
-        const chunk = clean.slice(i * charsPerLine, (i + 1) * charsPerLine);
-        if (!chunk) break;
-        const tspan = document.createElementNS(ns, 'tspan');
-        tspan.setAttribute('x', el.getAttribute('x'));
-        tspan.setAttribute('dy', i === 0 ? '0' : '14');
-        tspan.textContent = chunk;
-        el.appendChild(tspan);
-      }
-      el.setAttribute('visibility', 'visible');
-    }
-
-    /* ── 面板に結果を反映 ── */
-    function updatePanelText(data) {
-      writeSVGText('bal-result', data.balthasar, 24, 4);
-      writeSVGText('cas-result', data.casper,    22, 4);
-      writeSVGText('mel-result', data.melchior,  22, 4);
-    }
-
-    /* ── 裁決を解析 ── */
-    function parseVerdict(data) {
-      const v = (data.verdict || data.casper || '');
-      if (/否决|否定|搁置/.test(v)) return 'reject';
-      return 'resolve';
-    }
-
-    /* ── 審議開始（即 API コール） ── */
-    function startDeliberation() {
-      if (!queryInput.value.trim()) return;
-      inputModal.classList.remove('active');
-      screen.classList.add('processing');
-      setVisual('var(--yellow-panel)', 'var(--yellow-ui)', '审议中');
-      clearTimer();
-      codeEl.textContent = String(100 + Math.floor(Math.random() * 900));
-      makeDecision();
-    }
-
-    /* ── 本番 API コール ── */
-    function makeDecision() {
-      const question = queryInput.value.trim();
-
-      fetch('/api/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question })
-      })
-      .then(r => {
-        if (!r.ok) return r.json().then(e => { throw new Error(e.detail || 'HTTP ' + r.status); });
-        return r.json();
-      })
-      .then(data => {
-        screen.classList.remove('processing');
-
-        const result = parseVerdict(data);
-        if (result === 'reject') {
-          setVisual('var(--red-panel)',   'var(--red-ui)',   '否定');
-        } else {
-          setVisual('var(--green-panel)', 'var(--green-ui)', '承認');
-        }
-
-        updatePanelText(data);
-
-        clearTimer();
-        timer = setTimeout(setDefaultState, 5000);
-      })
-      .catch(err => {
-        console.error('MAGI API error:', err);
-        screen.classList.remove('processing');
-        setVisual('var(--red-panel)', 'var(--red-ui)', 'ERROR');
-        clearTimer();
-        timer = setTimeout(setDefaultState, 3000);
-      });
-    }
-
-    /* ── イベント ── */
-    statusBtn.addEventListener('click', openInput);
-    confirmBtn.addEventListener('click', startDeliberation);
-    queryInput.addEventListener('keydown', e => {
-      if (e.key === 'Enter')  startDeliberation();
-      if (e.key === 'Escape') inputModal.classList.remove('active');
+    Object.values(panels).forEach(p => {
+      p.el.classList.remove('flicker', 'voted', 'resolve', 'reject');
+      p.inner.textContent = p.def;
     });
 
-    setDefaultState();
-  })();
-  </script>
+    responseEl.classList.remove('visible', 'resolve', 'reject');
+    responseIn.textContent = '';
+  };
+
+  /* ── モーダルを開く ── */
+  const openModal = () => {
+    if (voted) { doReset(); return; }
+    if (voting) return;
+    modal.style.display = 'block';
+    queryInput.value = '';
+    queryInput.focus();
+  };
+
+  /* ── モーダルを閉じる ── */
+  const closeModal = () => {
+    modal.style.display = 'none';
+  };
+
+  /* ── テキスト抽出（最大 N 文字） ── */
+  const excerpt = (text, max) => {
+    if (!text) return '';
+    const lines = (text + '').split('\n')
+      .map(l => l.trim())
+      .filter(l => l && !/^[【={▸]/.test(l));
+    return lines.join(' ').slice(0, max || 80);
+  };
+
+  /* ── 裁決パース ── */
+  const parseVerdict = data => {
+    const v = data.verdict || data.casper || '';
+    if (/否决|否定|搁置/.test(v)) return 'reject';
+    return 'resolve';
+  };
+
+  /* ── 審議開始 ── */
+  const startDeliberation = async () => {
+    const q = queryInput.value.trim();
+    if (!q) {
+      queryInput.style.borderColor = '#d94a4a';
+      queryInput.focus();
+      setTimeout(() => { queryInput.style.borderColor = '#ff8d00'; }, 600);
+      return;
+    }
+
+    closeModal();
+    voting = true;
+    confirmBtn.disabled = true;
+    randCode();
+
+    /* フリッカー開始 */
+    Object.values(panels).forEach(p => p.el.classList.add('flicker'));
+
+    try {
+      const res = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: q }),
+      });
+
+      if (!res.ok) {
+        const e = await res.json().catch(() => ({}));
+        throw new Error(e.detail || 'HTTP ' + res.status);
+      }
+
+      const data = await res.json();
+      const verdict = parseVerdict(data);
+
+      /* フリッカー停止・面板を色付け */
+      Object.values(panels).forEach(p => p.el.classList.remove('flicker'));
+
+      /* 各面板に結果テキストを表示 */
+      const keys = { balthasar: data.balthasar, casper: data.casper, melchior: data.melchior };
+      Object.entries(keys).forEach(([name, text]) => {
+        const p = panels[name];
+        p.inner.textContent = excerpt(text, 80);
+        p.el.classList.add('voted');
+      });
+
+      /* 個別裁決（全体/二比一/否决） */
+      if (/二比一/.test(data.verdict || '')) {
+        panels.balthasar.el.classList.add('resolve');
+        panels.casper.el.classList.add('reject');
+        panels.melchior.el.classList.add('resolve');
+      } else if (verdict === 'reject') {
+        Object.values(panels).forEach(p => p.el.classList.add('reject'));
+      } else {
+        Object.values(panels).forEach(p => p.el.classList.add('resolve'));
+      }
+
+      /* 裁決バッジ */
+      const label = verdict === 'resolve' ? '承認' : '否定';
+      responseIn.textContent = label;
+      responseEl.classList.add('visible', verdict);
+
+      voting = false;
+      voted  = true;
+      confirmBtn.disabled = false;
+
+    } catch (err) {
+      console.error('MAGI error:', err);
+      Object.values(panels).forEach(p => p.el.classList.remove('flicker'));
+      voting = false;
+      confirmBtn.disabled = false;
+      /* エラー表示 */
+      responseIn.textContent = 'ERROR';
+      responseEl.classList.add('visible', 'reject');
+      setTimeout(doReset, 3000);
+    }
+  };
+
+  /* ── イベント ── */
+  document.getElementById('magi-title').addEventListener('click', openModal);
+
+  /* 面板クリック：投票後はリセット、それ以外は入力を開く */
+  Object.values(panels).forEach(p => {
+    p.el.addEventListener('click', () => {
+      if (voted) doReset();
+      else openModal();
+    });
+  });
+
+  closeBtn.addEventListener('click', closeModal);
+  confirmBtn.addEventListener('click', startDeliberation);
+
+  queryInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter')  startDeliberation();
+    if (e.key === 'Escape') closeModal();
+  });
+
+  /* ESC でモーダルを閉じる */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && modal.style.display !== 'none') closeModal();
+  });
+})();
+</script>
 </body>
 </html>
