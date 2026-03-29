@@ -31,17 +31,9 @@ class AnalyzeRequest(BaseModel):
     question: str
 
 
-def extract_verdict(casper_output: str) -> str:
-    for line in reversed(casper_output.splitlines()):
-        line = line.strip()
-        if line == "裁决：否决":
-            return "否定"
-        if line in ["裁决：全体一致通过", "裁决：二比一通过"]:
-            return "承認"
-    # fallback：扫描全文关键词
-    if "否决" in casper_output or "否定" in casper_output:
-        return "否定"
-    return "承認"
+def extract_first_word(text: str) -> str:
+    lines = text.strip().splitlines()
+    return lines[0].strip() if lines else ""
 
 
 def run_agent(agent, question: str) -> str:
@@ -99,17 +91,29 @@ async def analyze(req: AnalyzeRequest):
 
     m_out = results.get("melchior", "")
     b_out = results.get("balthasar", "")
+
+    melchior_vote = extract_first_word(m_out)
+    balthasar_vote = extract_first_word(b_out)
+    casper_vote = extract_first_word(casper_output)
+
+    votes = [melchior_vote, balthasar_vote, casper_vote]
+    reject_count = votes.count("拒绝")
+    verdict = "否定" if reject_count >= 2 else "承認"
+
     log(f"[RESPONSE] melchior={m_out[:80]!r}")
     log(f"[RESPONSE] balthasar={b_out[:80]!r}")
     log(f"[RESPONSE] casper={casper_output[:80]!r}")
-    log(f"[VERDICT] raw casper output last 200 chars: {casper_output[-200:]}")
-    log(f"[MAGI DONE] verdict={extract_verdict(casper_output)} mock={mock}")
+    log(f"[VOTES] melchior={melchior_vote!r} balthasar={balthasar_vote!r} casper={casper_vote!r}")
+    log(f"[MAGI DONE] verdict={verdict} reject_count={reject_count} mock={mock}")
 
     return JSONResponse({
-        "melchior": results.get("melchior", ""),
-        "balthasar": results.get("balthasar", ""),
+        "melchior": m_out,
+        "balthasar": b_out,
         "casper": casper_output,
-        "verdict": extract_verdict(casper_output),
+        "melchior_vote": melchior_vote,
+        "balthasar_vote": balthasar_vote,
+        "casper_vote": casper_vote,
+        "verdict": verdict,
         "debug_mode": "mock" if mock else "real",
         "debug_key_set": bool(google_key),
     })
