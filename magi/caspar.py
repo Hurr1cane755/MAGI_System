@@ -26,7 +26,9 @@ SYSTEM_PROMPT = """你是 CASPER-3，MAGI 系统的第三单元。
 必须以以下其中一种形式结尾：
 ▸ **全体一致通过** — 三个人格均支持，可放心推进
 ▸ **二比一通过**（含异议）— 指明哪个人格持异议及其理由
-▸ **否决** — 任一人格行使否决权，必须说明否决理由"""
+▸ **否决** — 任一人格行使否决权，必须说明否决理由
+
+你的裁决必须反映你真实的直觉感受，不要总是跟随前两者。当你感到迟疑、矛盾或不确定时，你可以否定。你的否决权是真实存在的，请在合适的时候使用它。"""
 
 
 class Caspar(BaseAgent):
@@ -41,7 +43,10 @@ class Caspar(BaseAgent):
         response = self._client.models.generate_content(
             model="gemini-2.5-flash-lite",
             contents=prompt,
-            config=types.GenerateContentConfig(system_instruction=SYSTEM_PROMPT),
+            config=types.GenerateContentConfig(
+                system_instruction=SYSTEM_PROMPT,
+                max_output_tokens=300,
+            ),
         )
         return response.text
 

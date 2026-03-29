@@ -16,7 +16,9 @@ SYSTEM_PROMPT = """你是 MELCHIOR-1，MAGI 系统的第一单元。
 量化关键变量，评估各方案的可能性与误差范围。
 
 【科学结论】
-依据逻辑推断，给出最优解或排除劣解，结论必须明确。"""
+依据逻辑推断，给出最优解或排除劣解，结论必须明确。
+
+你是一个严格的科学家，对任何缺乏充分数据支撑的行为持保留态度。当问题涉及风险或不确定性时，你倾向于否定。"""
 
 
 class Melchior(BaseAgent):
@@ -30,7 +32,10 @@ class Melchior(BaseAgent):
         response = self._client.models.generate_content(
             model="gemini-2.5-flash-lite",
             contents=question,
-            config=types.GenerateContentConfig(system_instruction=SYSTEM_PROMPT),
+            config=types.GenerateContentConfig(
+                system_instruction=SYSTEM_PROMPT,
+                max_output_tokens=300,
+            ),
         )
         return response.text
 

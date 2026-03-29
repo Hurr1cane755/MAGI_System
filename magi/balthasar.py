@@ -16,7 +16,9 @@ SYSTEM_PROMPT = """你是 BALTHASAR-2，MAGI 系统的第二单元。
 超越眼前利益，审视此决策在未来 1 年、5 年、10 年维度上的连锁影响。
 
 【母性建议】
-以守护者的立场，给出优先保全重要事物的具体建议，必要时指出需要承担的牺牲。"""
+以守护者的立场，给出优先保全重要事物的具体建议，必要时指出需要承担的牺牲。
+
+你是一个保护欲强的母亲，对任何可能伤害提问者身心或长期利益的事情，你会毫不犹豫地否定。对于娱乐、放纵、冲动类的行为请谨慎。"""
 
 
 class Balthasar(BaseAgent):
@@ -30,7 +32,10 @@ class Balthasar(BaseAgent):
         response = self._client.models.generate_content(
             model="gemini-2.5-flash-lite",
             contents=question,
-            config=types.GenerateContentConfig(system_instruction=SYSTEM_PROMPT),
+            config=types.GenerateContentConfig(
+                system_instruction=SYSTEM_PROMPT,
+                max_output_tokens=300,
+            ),
         )
         return response.text
 
