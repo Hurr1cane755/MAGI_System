@@ -103,10 +103,11 @@ body {
   justify-content: center;
   gap: 2px;
 }
-.magi > .header > hr {
-  border: none;
-  border-top: 2px solid #277547;
-  margin: 1px 0;
+.magi > .header > .rect-bar {
+  height: 7px;
+  border: 2px solid #277547;
+  background: transparent;
+  margin: 2px 8px;
   flex-shrink: 0;
 }
 .magi > .header > span {
@@ -377,9 +378,9 @@ body {
   <div class="magi">
 
     <div class="header left">
-      <hr><hr>
+      <div class="rect-bar"></div><div class="rect-bar"></div>
       <span>提　訴</span>
-      <hr><hr>
+      <div class="rect-bar"></div><div class="rect-bar"></div>
     </div>
 
     <div class="header right">
@@ -508,12 +509,14 @@ body {
     melchior:  { wm: document.getElementById('wm-melchior'),  inner: document.getElementById('inner-melchior'),  label: 'MELCHIOR',  num: '• 1' },
   };
 
-  let processing = false;
-  let lastQuery  = '';
-  let panelData  = {};
+  let processing      = false;
+  let lastQuery       = '';
+  let panelData       = {};
+  let currentState    = 'info';
 
   /* ── バッジ設定 ── */
   function setBadge(state) {
+    currentState = state;
     const s = BADGE[state] || BADGE.info;
     responseEl.style.color = s.color;
     responseIn.textContent = s.text;
@@ -655,8 +658,13 @@ body {
   }
 
   responseEl.addEventListener('click', () => {
-    if (inputModal.classList.contains('open')) closeInputModal();
-    else openInputModal();
+    if (currentState === 'yes' || currentState === 'no' || currentState === 'error') {
+      reset();
+    } else if (inputModal.classList.contains('open')) {
+      closeInputModal();
+    } else {
+      openInputModal();
+    }
   });
 
   document.getElementById('inputModalClose').addEventListener('click', closeInputModal);
