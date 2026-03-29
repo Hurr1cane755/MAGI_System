@@ -571,13 +571,18 @@ body {
     return votes.filter(x => x === 'no').length >= 2 ? 'no' : 'yes';
   }
 
-  /* ── 本文から第一行（通过/拒绝）を除いた分析テキストを返す ── */
+  /* ── 本文から第一行（通过/拒绝）と【MAGI 最终裁决】行を除いたテキストを返す ── */
   function bodyText(text) {
     if (!text) return '';
-    const lines = text.split('\n');
-    const first = lines[0].trim();
-    if (first === '通过' || first === '拒绝') return lines.slice(1).join('\n').trim();
-    return text.trim();
+    let lines = text.split('\n');
+    // 先頭の通过/拒绝行を除去
+    if (lines.length && (lines[0].trim() === '通过' || lines[0].trim() === '拒绝')) {
+      lines = lines.slice(1);
+    }
+    // 【MAGI 最终裁决】を含む行以降を除去
+    const cutIdx = lines.findIndex(l => l.includes('MAGI') && l.includes('裁决'));
+    if (cutIdx !== -1) lines = lines.slice(0, cutIdx);
+    return lines.join('\n').trim();
   }
 
   /* ── 審議実行 ── */
