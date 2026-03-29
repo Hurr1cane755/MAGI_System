@@ -36,7 +36,7 @@ body {
   flex: 1;
   min-height: 0;
   background: black;
-  border: 2px solid #ff8d00;
+  border: 2px solid #e07800;
   padding: 15px;
   display: flex;
   flex-direction: column;
@@ -77,14 +77,14 @@ body {
     [casper-end melchior-end]
     20px;
   container-type: size;
-  border: 2px solid #ff8d00;
+  border: 2px solid #e07800;
 }
 
 /* ── MAGI タイトル ── */
 .magi > .title {
   grid-column: casper-end / melchior-start;
-  grid-row: header / casper-end;
-  color: #ff8d00;
+  grid-row: status / casper-end;
+  color: #e07800;
   font-size: min(6cqh, 3.5cqw);
   font-weight: 900;
   letter-spacing: 0.2em;
@@ -111,7 +111,7 @@ body {
   flex-shrink: 0;
 }
 .magi > .header > span {
-  color: #ff8d00;
+  color: #e07800;
   font-size: min(8cqh, 4cqw);
   font-weight: 900;
   letter-spacing: 0.2em;
@@ -126,7 +126,7 @@ body {
 .magi > .system-status {
   grid-area: status;
   font-family: 'Lucida Console', 'Courier New', monospace;
-  color: #ff8d00;
+  color: #e07800;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -167,7 +167,7 @@ body {
 /* ── パネル共通 ── */
 .magi > .wise-man {
   display: flex;
-  background: #ff8d00;
+  background: #e07800;
   padding: 2px;
   cursor: pointer;
   transition: filter 0.2s;
@@ -234,7 +234,7 @@ body {
 /* ── 接続ライン ── */
 .connection {
   height: 14px;
-  background: #ff8d00;
+  background: #e07800;
   align-self: center;
   margin: -10%;
 }
@@ -253,9 +253,9 @@ body {
   right: 15px;
   top: 15px;
   z-index: 60;
-  border: 2px solid #ff8d00;
+  border: 2px solid #e07800;
   background: #000;
-  color: #ff8d00;
+  color: #e07800;
   font-family: 'Lucida Console', 'Courier New', monospace;
   min-width: 320px;
   max-width: 480px;
@@ -264,7 +264,7 @@ body {
 
 .input-modal-header {
   display: flex;
-  border-bottom: 2px solid #ff8d00;
+  border-bottom: 2px solid #e07800;
 }
 .input-modal-title {
   flex: 1;
@@ -276,12 +276,12 @@ body {
 }
 .input-modal-close {
   padding: 5px 10px;
-  border-left: 2px solid #ff8d00;
+  border-left: 2px solid #e07800;
   cursor: pointer;
   font-weight: bold;
   font-size: 13px;
 }
-.input-modal-close:hover { background: #ff8d00; color: #000; }
+.input-modal-close:hover { background: #e07800; color: #000; }
 
 .input-modal-body {
   padding: 12px;
@@ -298,8 +298,8 @@ body {
 .input-modal-body input {
   width: 100%;
   background: #0e0800;
-  border: 2px solid #ff8d00;
-  color: #ff8d00;
+  border: 2px solid #e07800;
+  color: #e07800;
   font-family: 'Lucida Console', 'Courier New', monospace;
   font-size: 13px;
   padding: 5px 8px;
@@ -311,8 +311,8 @@ body {
 .submit-btn {
   align-self: flex-end;
   background: transparent;
-  border: 2px solid #ff8d00;
-  color: #ff8d00;
+  border: 2px solid #e07800;
+  color: #e07800;
   font-family: 'Noto Serif JP', serif;
   font-size: 13px;
   font-weight: 900;
@@ -323,16 +323,16 @@ body {
   white-space: nowrap;
   margin-top: 2px;
 }
-.submit-btn:hover:not(:disabled) { background: #ff8d00; color: #000; }
+.submit-btn:hover:not(:disabled) { background: #e07800; color: #000; }
 .submit-btn:disabled              { opacity: .35; cursor: not-allowed; }
 
 /* ── モーダル ── */
 .modal {
   display: none;
   position: absolute;
-  border: 2px solid #ff8d00;
+  border: 2px solid #e07800;
   background: #000;
-  color: #ff8d00;
+  color: #e07800;
   font-family: 'Lucida Console', 'Courier New', monospace;
   max-width: 55%;
   min-width: 290px;
@@ -342,7 +342,7 @@ body {
 }
 .modal-header {
   display: flex;
-  border-bottom: 2px solid #ff8d00;
+  border-bottom: 2px solid #e07800;
 }
 .modal-title {
   flex: 1;
@@ -354,12 +354,12 @@ body {
 }
 .modal-close {
   padding: 5px 10px;
-  border-left: 2px solid #ff8d00;
+  border-left: 2px solid #e07800;
   cursor: pointer;
   font-weight: bold;
   font-size: 13px;
 }
-.modal-close:hover { background: #ff8d00; color: #000; }
+.modal-close:hover { background: #e07800; color: #000; }
 .modal-body {
   display: grid;
   grid-template-columns: auto 1fr;
