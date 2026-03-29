@@ -566,8 +566,8 @@ body {
   /* ── 全体裁決 ── */
   function classifyOverall(data) {
     const v = data.verdict || '';
-    if (/否决|否定|搁置/.test(v)) return 'no';
-    if (/全体一致通过|全体同意|unanim/i.test(v)) return 'yes';
+    if (v === '否定' || /否决|否定|搁置/.test(v)) return 'no';
+    if (v === '承認' || /全体一致通过|全体同意|unanim/i.test(v)) return 'yes';
     const keys  = ['balthasar', 'casper', 'melchior'];
     const votes = keys.map(k => classifyVote(data[k] || ''));
     return votes.filter(x => x === 'no').length >= 2 ? 'no' : 'yes';

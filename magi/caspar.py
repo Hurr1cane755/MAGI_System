@@ -39,7 +39,7 @@ class Caspar(BaseAgent):
         client = OpenAI(api_key=self._api_key)
         prompt = f"原始问题：{question}\n\n{context}"
         response = client.chat.completions.create(
-            model="gpt-5.4",
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": prompt},

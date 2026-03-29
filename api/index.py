@@ -34,11 +34,13 @@ class AnalyzeResponse(BaseModel):
 
 
 def extract_verdict(casper_output: str) -> str:
-    """从 CASPER-3 输出中提取最终裁决行"""
+    """从 CASPER-3 输出中提取最终裁决，返回 '承認' 或 '否定'"""
     for line in casper_output.splitlines():
-        if "全体一致通过" in line or "二比一通过" in line or "否决" in line:
-            return line.strip().lstrip("▸").strip()
-    return "裁决结果解析失败"
+        if "否决" in line or "否定" in line:
+            return "否定"
+        if "全体一致通过" in line or "二比一通过" in line:
+            return "承認"
+    return "否定"
 
 
 @app.post("/api/analyze", response_model=AnalyzeResponse)
