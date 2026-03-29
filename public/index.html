@@ -1,12 +1,18 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="ja">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>MAGI System</title>
 <style>
+/* ── 完全按照 TomaszRewak/MAGI assets/style.css ── */
+
 html {
-  background: repeating-linear-gradient(45deg, rgb(0 0 0) 0px, rgb(0 0 0) 20px, #140b02 20px, #140b02 40px);
+  background: repeating-linear-gradient(
+    45deg,
+    rgb(0 0 0) 0px, rgb(0 0 0) 20px,
+    #140b02 20px, #140b02 40px
+  );
   min-height: 100vh;
 }
 
@@ -66,11 +72,9 @@ body {
   text-align: center;
   font-size: 9cqh;
   font-weight: bold;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  user-select: none;
 }
 
 .magi > .header {
@@ -92,13 +96,8 @@ body {
   transform: scaleX(2);
 }
 
-.magi > .header.left {
-  grid-area: header / left-header-start / auto / left-header-end;
-}
-
-.magi > .header.right {
-  grid-area: header / right-header-start / auto / right-header-end;
-}
+.magi > .header.left  { grid-area: header / left-header-start  / auto / left-header-end; }
+.magi > .header.right { grid-area: header / right-header-start / auto / right-header-end; }
 
 .magi > .system-status {
   grid-area: status;
@@ -124,11 +123,10 @@ body {
   align-self: center;
   border: solid 2px;
   padding: 2px;
-  display: none;
-}
-
-.magi > .response.visible {
-  display: block;
+  /* color/borderColor set via JS */
+  color: #3caee0;
+  border-color: #3caee0;
+  cursor: default;
 }
 
 .magi > .response > .inner {
@@ -137,6 +135,7 @@ body {
   padding: 2px 10px;
   font-size: 8cqh;
   font-weight: bold;
+  border-color: inherit;
 }
 
 .magi > .wise-man {
@@ -155,15 +154,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  padding: 5%;
-  line-height: 1.15;
+  /* background set via JS */
+  background: #3caee0;
 }
 
 .magi > .wise-man.melchior {
   grid-area: melchior-start / melchior-start / melchior-end / melchior-end;
 }
-
 .magi > .wise-man.melchior,
 .magi > .wise-man.melchior > .inner {
   clip-path: polygon(35% 0, 100% 0, 100% 100%, 0 100%, 0 44%);
@@ -172,7 +169,6 @@ body {
 .magi > .wise-man.balthasar {
   grid-area: balthasar-start / balthasar-start / balthasar-end / balthasar-end;
 }
-
 .magi > .wise-man.balthasar,
 .magi > .wise-man.balthasar > .inner {
   clip-path: polygon(0 0, 100% 0, 100% 80%, 75% 100%, 25% 100%, 0 80%);
@@ -181,29 +177,10 @@ body {
 .magi > .wise-man.casper {
   grid-area: casper-start / casper-start / casper-end / casper-end;
 }
-
 .magi > .wise-man.casper,
 .magi > .wise-man.casper > .inner {
   clip-path: polygon(0 0, 65% 0, 100% 44%, 100% 100%, 0 100%);
 }
-
-/* ── Voted state ── */
-.magi > .wise-man.voted > .inner {
-  font-size: 4cqh;
-  line-height: 1.4;
-  font-family: 'Lucida Console', 'Courier New', monospace;
-  word-break: break-all;
-}
-
-.magi > .wise-man.voted.resolve             { background: #1a521a; }
-.magi > .wise-man.voted.resolve > .inner    { color: #aaff99; }
-
-.magi > .wise-man.voted.reject              { background: #5a1010; }
-.magi > .wise-man.voted.reject > .inner     { color: #ffaaaa; }
-
-/* ── Response badge colors ── */
-.magi > .response.resolve { color: #8eff9f; }
-.magi > .response.reject  { color: #d94a4a; }
 
 @keyframes flicker-animation {
   0%   {}
@@ -220,22 +197,47 @@ body {
   align-self: center;
   margin: -10%;
 }
+.connection.casper-balthasar  { grid-area: casper-balthasar-connection;  transform: rotate(-54deg); }
+.connection.casper-melchior   { grid-area: casper-melchior-connection; }
+.connection.balthasar-melchior { grid-area: balthasar-melchior-connection; transform: rotate(54deg); }
 
-.connection.casper-balthasar {
-  grid-area: casper-balthasar-connection;
-  transform: rotate(-54deg);
+/* ── 入力コンテナ（.magi の下） ── */
+.input-container {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  color: #ff8d00;
+  font-family: 'Lucida Console', 'Courier New', monospace;
+  column-gap: 10px;
+  row-gap: 5px;
+  margin-top: 15px;
+  align-items: center;
 }
 
-.connection.casper-melchior {
-  grid-area: casper-melchior-connection;
+.input-container > label {
+  font-size: 14px;
+  font-weight: bold;
+  white-space: nowrap;
 }
 
-.connection.balthasar-melchior {
-  grid-area: balthasar-melchior-connection;
-  transform: rotate(54deg);
+.input-container > input {
+  background: #1f1203;
+  border: 2px solid #ff8d00;
+  color: #ff8d00;
+  font-family: 'Lucida Console', 'Courier New', monospace;
+  font-size: 14px;
+  padding: 3px 6px;
+  outline: none;
 }
 
-/* ── Modal ── */
+.input-container > input:focus {
+  border-color: #ffb84d;
+}
+
+.input-container > input::placeholder {
+  color: rgba(255, 141, 0, 0.35);
+}
+
+/* ── モーダル ── */
 .modal {
   border: 2px solid #ff8d00;
   color: #ff8d00;
@@ -243,9 +245,10 @@ body {
   position: absolute;
   background: black;
   max-width: 60%;
+  min-width: 320px;
   top: 10%;
   right: 10%;
-  z-index: 100;
+  z-index: 50;
 }
 
 .modal > .modal-header {
@@ -257,20 +260,23 @@ body {
 .modal > .modal-header > .modal-title {
   flex: 1;
   padding: 5px;
-  background: repeating-linear-gradient(45deg, rgb(0 0 0) 0px, rgb(0 0 0) 10px, #211200 10px, #211200 20px);
   font-size: 13px;
   font-weight: bold;
   letter-spacing: 1px;
+  background: repeating-linear-gradient(
+    45deg,
+    rgb(0 0 0) 0px, rgb(0 0 0) 10px,
+    #211200 10px, #211200 20px
+  );
 }
 
 .modal > .modal-header > .close {
   padding: 5px 9px;
   border-left: 2px solid #ff8d00;
   cursor: pointer;
-  font-size: 16px;
   font-weight: bold;
+  font-size: 14px;
 }
-
 .modal > .modal-header > .close:hover {
   background: #ff8d00;
   color: black;
@@ -278,83 +284,47 @@ body {
 
 .modal > .modal-body {
   display: grid;
-  grid-template-columns: auto auto;
-  column-gap: 10px;
-  padding: 10px;
-  align-items: center;
-}
-
-.input-container {
-  display: grid;
   grid-template-columns: auto 1fr;
-  color: #ff8d00;
-  font-family: 'Lucida Console', 'Courier New', monospace;
   column-gap: 10px;
-  row-gap: 5px;
-  margin-top: 5px;
+  row-gap: 6px;
+  padding: 12px;
   font-size: 12px;
+}
+
+.modal > .modal-body > .mb-label {
   font-weight: bold;
-  letter-spacing: 1px;
-  align-items: center;
+  white-space: nowrap;
+  opacity: 0.7;
 }
 
-.input-container > input {
-  background: #1f1203;
-  border: 2px solid #ff8d00;
-  color: #ff8d00;
-  font-family: 'Lucida Console', 'Courier New', monospace;
-  font-size: 13px;
-  padding: 3px 6px;
-  outline: none;
-}
-
-.input-container > input::placeholder {
-  color: rgba(255, 141, 0, 0.4);
-}
-
-.activate-btn {
-  grid-column: 1 / 3;
-  margin-top: 10px;
-  background: transparent;
-  border: 2px solid #ff8d00;
-  color: #ff8d00;
-  font-family: 'Lucida Console', 'Courier New', monospace;
-  font-size: 14px;
-  font-weight: bold;
-  letter-spacing: 3px;
-  padding: 6px 20px;
-  cursor: pointer;
-  width: 100%;
-  transition: background 0.15s, color 0.15s;
-}
-
-.activate-btn:hover {
-  background: #ff8d00;
-  color: black;
-}
-
-.activate-btn:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
+.modal > .modal-body > .mb-value {
+  word-break: break-word;
+  line-height: 1.45;
 }
 </style>
 </head>
 <body>
 
 <div class="system">
-  <div class="magi" id="magi">
 
-    <!-- 左上ヘッダー -->
+  <!-- ── MAGI グリッド ── -->
+  <div class="magi">
+
+    <!-- 左ヘッダー：質 問 -->
     <div class="header left">
-      <hr><span>提訴</span><hr>
+      <hr><hr>
+      <span>質 問</span>
+      <hr><hr>
     </div>
 
-    <!-- 右上ヘッダー -->
+    <!-- 右ヘッダー：解 決 -->
     <div class="header right">
-      <hr><span>決議</span><hr>
+      <hr><hr>
+      <span>解 決</span>
+      <hr><hr>
     </div>
 
-    <!-- システム情報 -->
+    <!-- システムステータス -->
     <div class="system-status">
       <div>CODE:<span id="code-num">473</span></div>
       <div>FILE:MAGI_SYS</div>
@@ -363,153 +333,206 @@ body {
       <div>PRIORITY:AAA</div>
     </div>
 
-    <!-- 裁決バッジ（右上） -->
+    <!-- 裁決バッジ（右上）：常時表示 -->
     <div class="response" id="response">
-      <div class="inner" id="response-inner"></div>
+      <div class="inner" id="response-inner">情 報</div>
     </div>
 
-    <!-- 中央タイトル（クリックで入力を開く） -->
-    <div class="title" id="magi-title" title="Click to deliberate">MAGI</div>
-
-    <!-- 三面板 -->
-    <div class="wise-man balthasar" id="balthasar">
-      <div class="inner" id="balthasar-inner">BALTHASAR・2</div>
-    </div>
-
-    <div class="wise-man casper" id="casper">
-      <div class="inner" id="casper-inner">CASPER・3</div>
-    </div>
-
-    <div class="wise-man melchior" id="melchior">
-      <div class="inner" id="melchior-inner">MELCHIOR・1</div>
-    </div>
+    <!-- 中央タイトル -->
+    <div class="title">MAGI</div>
 
     <!-- 接続ライン -->
     <div class="connection casper-balthasar"></div>
     <div class="connection casper-melchior"></div>
     <div class="connection balthasar-melchior"></div>
+
+    <!-- BALTHASAR・2 -->
+    <div class="wise-man balthasar" id="wm-balthasar">
+      <div class="inner" id="inner-balthasar">BALTHASAR • 2</div>
+    </div>
+
+    <!-- CASPER・3 -->
+    <div class="wise-man casper" id="wm-casper">
+      <div class="inner" id="inner-casper">CASPER • 3</div>
+    </div>
+
+    <!-- MELCHIOR・1 -->
+    <div class="wise-man melchior" id="wm-melchior">
+      <div class="inner" id="inner-melchior">MELCHIOR • 1</div>
+    </div>
+
+  </div><!-- .magi -->
+
+  <!-- ── 入力エリア（.magi の下） ── -->
+  <div class="input-container">
+    <label>access code:</label>
+    <input type="password" id="accessInput" autocomplete="off" placeholder="••••••••••••" />
+    <label>question:</label>
+    <input type="text" id="queryInput" autocomplete="off"
+           placeholder="Enter deliberation query and press Enter…" />
   </div>
 
-  <!-- 入力モーダル -->
-  <div class="modal" id="modal" style="display:none;">
+  <!-- ── 各パネルのモーダル（3つ） ── -->
+  <div class="modal" id="modal-balthasar" style="display:none;">
     <div class="modal-header">
-      <div class="modal-title">■ MAGI DELIBERATION SYSTEM — QUERY INPUT</div>
-      <div class="close" id="closeBtn">×</div>
+      <div class="modal-title">BALTHASAR • 2 — MAGI-02</div>
+      <div class="close" data-modal="modal-balthasar">X</div>
     </div>
     <div class="modal-body">
-      <div style="grid-column:1/3;">
-        <div class="input-container">
-          <span>QUERY&nbsp;&nbsp;:</span>
-          <input type="text" id="queryInput" placeholder="输入审议问题…" autocomplete="off" />
-          <span>ACCESS :</span>
-          <input type="text" value=".............................." readonly tabindex="-1" />
-        </div>
-      </div>
-      <button class="activate-btn" id="confirmBtn" type="button">ACTIVATE MAGI</button>
+      <div class="mb-label">question:</div>
+      <div class="mb-value" id="mq-balthasar">—</div>
+      <div class="mb-label">status:</div>
+      <div class="mb-value" id="ms-balthasar">—</div>
+      <div class="mb-label">response:</div>
+      <div class="mb-value" id="mr-balthasar">—</div>
     </div>
   </div>
-</div>
+
+  <div class="modal" id="modal-casper" style="display:none;">
+    <div class="modal-header">
+      <div class="modal-title">CASPER • 3 — MAGI-03</div>
+      <div class="close" data-modal="modal-casper">X</div>
+    </div>
+    <div class="modal-body">
+      <div class="mb-label">question:</div>
+      <div class="mb-value" id="mq-casper">—</div>
+      <div class="mb-label">status:</div>
+      <div class="mb-value" id="ms-casper">—</div>
+      <div class="mb-label">response:</div>
+      <div class="mb-value" id="mr-casper">—</div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-melchior" style="display:none;">
+    <div class="modal-header">
+      <div class="modal-title">MELCHIOR • 1 — MAGI-01</div>
+      <div class="close" data-modal="modal-melchior">X</div>
+    </div>
+    <div class="modal-body">
+      <div class="mb-label">question:</div>
+      <div class="mb-value" id="mq-melchior">—</div>
+      <div class="mb-label">status:</div>
+      <div class="mb-value" id="ms-melchior">—</div>
+      <div class="mb-label">response:</div>
+      <div class="mb-value" id="mr-melchior">—</div>
+    </div>
+  </div>
+
+</div><!-- .system -->
 
 <script>
 (function () {
   'use strict';
 
-  const magiEl    = document.getElementById('magi');
-  const modal     = document.getElementById('modal');
-  const closeBtn  = document.getElementById('closeBtn');
-  const queryInput= document.getElementById('queryInput');
-  const confirmBtn= document.getElementById('confirmBtn');
-  const responseEl= document.getElementById('response');
-  const responseIn= document.getElementById('response-inner');
-  const codeEl    = document.getElementById('code-num');
+  /* ── ステータス定義（参照実装に完全対応） ── */
+  const STATUS = {
+    info:        { text: '情 報', color: '#3caee0',
+                   bg: '#3caee0' },
+    yes:         { text: '合 意', color: '#52e691',
+                   bg: '#52e691' },
+    no:          { text: '拒 絶', color: '#a41413',
+                   bg: '#a41413' },
+    conditional: { text: '状 態', color: '#ff8d00',
+                   bg: 'repeating-linear-gradient(56deg, rgb(82,230,145) 0px, rgb(82,230,145) 30px, #82cd68 30px, #82cd68 60px)' },
+    error:       { text: '誤 差', color: 'gray',
+                   bg: 'black' },
+  };
+
+  /* ── DOM refs ── */
+  const codeEl   = document.getElementById('code-num');
+  const queryEl  = document.getElementById('queryInput');
+  const responseEl    = document.getElementById('response');
+  const responseInner = document.getElementById('response-inner');
 
   const panels = {
     balthasar: {
-      el:    document.getElementById('balthasar'),
-      inner: document.getElementById('balthasar-inner'),
-      def:   'BALTHASAR・2',
+      wm:    document.getElementById('wm-balthasar'),
+      inner: document.getElementById('inner-balthasar'),
+      label: 'BALTHASAR • 2',
     },
     casper: {
-      el:    document.getElementById('casper'),
-      inner: document.getElementById('casper-inner'),
-      def:   'CASPER・3',
+      wm:    document.getElementById('wm-casper'),
+      inner: document.getElementById('inner-casper'),
+      label: 'CASPER • 3',
     },
     melchior: {
-      el:    document.getElementById('melchior'),
-      inner: document.getElementById('melchior-inner'),
-      def:   'MELCHIOR・1',
+      wm:    document.getElementById('wm-melchior'),
+      inner: document.getElementById('inner-melchior'),
+      label: 'MELCHIOR • 1',
     },
   };
 
-  let voting = false, voted = false;
+  let processing = false;
+  let lastQuery  = '';
+  let panelData  = { balthasar: null, casper: null, melchior: null };
 
-  /* ── ランダムコード ── */
-  const randCode = () => {
-    codeEl.textContent = String(100 + Math.floor(Math.random() * 900));
-  };
+  /* ── パネルカラー適用 ── */
+  function applyStatus(name, status) {
+    const s = STATUS[status] || STATUS.info;
+    panels[name].inner.style.background = s.bg;
+    // reset font color for conditional (dark text on light bg)
+    panels[name].inner.style.color = (status === 'no') ? '#ffbbbb' : '#000';
+  }
 
-  /* ── リセット ── */
-  const doReset = () => {
-    voting = voted = false;
-    confirmBtn.disabled = false;
-    confirmBtn.textContent = 'ACTIVATE MAGI';
+  /* ── バッジ更新 ── */
+  function applyResponseStatus(status) {
+    const s = STATUS[status] || STATUS.info;
+    responseEl.style.color       = s.color;
+    responseEl.style.borderColor = s.color;
+    responseInner.textContent    = s.text;
+  }
 
-    Object.values(panels).forEach(p => {
-      p.el.classList.remove('flicker', 'voted', 'resolve', 'reject');
-      p.inner.textContent = p.def;
+  /* ── 初期化 ── */
+  function reset() {
+    processing = false;
+    panelData  = { balthasar: null, casper: null, melchior: null };
+    Object.keys(panels).forEach(n => {
+      panels[n].inner.classList.remove('flicker');
+      panels[n].inner.textContent = panels[n].label;
+      applyStatus(n, 'info');
     });
+    applyResponseStatus('info');
+  }
 
-    responseEl.classList.remove('visible', 'resolve', 'reject');
-    responseIn.textContent = '';
-  };
+  /* ── 個別回答をyes/no/conditionalに分類 ── */
+  function classifyVote(text) {
+    if (!text) return 'error';
+    const t = text;
+    if (/否决|否定|拒绝|反对|不同意|不支持|不赞成|reject|refuse|disagree/i.test(t)) return 'no';
+    if (/条件|前提|有条件|但需|须满足|conditional|with cond|unless/i.test(t)) return 'conditional';
+    if (/同意|支持|赞同|批准|赞成|通过|允许|approve|agree|support|yes/i.test(t)) return 'yes';
+    return 'conditional';
+  }
 
-  /* ── モーダルを開く ── */
-  const openModal = () => {
-    if (voted) { doReset(); return; }
-    if (voting) return;
-    modal.style.display = 'block';
-    queryInput.value = '';
-    queryInput.focus();
-  };
+  /* ── 全体裁決を分類 ── */
+  function classifyOverall(data) {
+    const v = data.verdict || '';
+    if (/否决|否定|搁置/.test(v)) return 'no';
+    if (/全体一致通过|全体同意/.test(v)) return 'yes';
+    if (/二比一/.test(v)) return 'conditional';
+    // フォールバック：各パネルから集計
+    const votes = Object.keys(panels).map(k => classifyVote(data[k] || ''));
+    const noCnt = votes.filter(v => v === 'no').length;
+    const yesCnt = votes.filter(v => v === 'yes').length;
+    if (noCnt >= 2) return 'no';
+    if (yesCnt === 3) return 'yes';
+    return 'conditional';
+  }
 
-  /* ── モーダルを閉じる ── */
-  const closeModal = () => {
-    modal.style.display = 'none';
-  };
+  /* ── 審議実行 ── */
+  async function deliberate() {
+    const q = queryEl.value.trim();
+    if (!q || processing) return;
 
-  /* ── テキスト抽出（最大 N 文字） ── */
-  const excerpt = (text, max) => {
-    if (!text) return '';
-    const lines = (text + '').split('\n')
-      .map(l => l.trim())
-      .filter(l => l && !/^[【={▸]/.test(l));
-    return lines.join(' ').slice(0, max || 80);
-  };
-
-  /* ── 裁決パース ── */
-  const parseVerdict = data => {
-    const v = data.verdict || data.casper || '';
-    if (/否决|否定|搁置/.test(v)) return 'reject';
-    return 'resolve';
-  };
-
-  /* ── 審議開始 ── */
-  const startDeliberation = async () => {
-    const q = queryInput.value.trim();
-    if (!q) {
-      queryInput.style.borderColor = '#d94a4a';
-      queryInput.focus();
-      setTimeout(() => { queryInput.style.borderColor = '#ff8d00'; }, 600);
-      return;
-    }
-
-    closeModal();
-    voting = true;
-    confirmBtn.disabled = true;
-    randCode();
+    processing = true;
+    lastQuery  = q;
+    codeEl.textContent = String(100 + Math.floor(Math.random() * 900));
 
     /* フリッカー開始 */
-    Object.values(panels).forEach(p => p.el.classList.add('flicker'));
+    Object.keys(panels).forEach(n => {
+      panels[n].inner.classList.add('flicker');
+    });
+    responseEl.classList.add('flicker');
 
     try {
       const res = await fetch('/api/analyze', {
@@ -524,74 +547,75 @@ body {
       }
 
       const data = await res.json();
-      const verdict = parseVerdict(data);
+      panelData = { balthasar: data.balthasar, casper: data.casper, melchior: data.melchior };
 
-      /* フリッカー停止・面板を色付け */
-      Object.values(panels).forEach(p => p.el.classList.remove('flicker'));
+      /* フリッカー停止 */
+      Object.keys(panels).forEach(n => panels[n].inner.classList.remove('flicker'));
+      responseEl.classList.remove('flicker');
 
-      /* 各面板に結果テキストを表示 */
-      const keys = { balthasar: data.balthasar, casper: data.casper, melchior: data.melchior };
-      Object.entries(keys).forEach(([name, text]) => {
-        const p = panels[name];
-        p.inner.textContent = excerpt(text, 80);
-        p.el.classList.add('voted');
+      /* 各パネルのステータスと表示テキストを更新 */
+      const panelVotes = {};
+      Object.keys(panels).forEach(n => {
+        const vote = classifyVote(data[n] || '');
+        panelVotes[n] = vote;
+        applyStatus(n, vote);
+        // パネル内には名前のままにする（クリックでモーダル表示）
       });
 
-      /* 個別裁決（全体/二比一/否决） */
-      if (/二比一/.test(data.verdict || '')) {
-        panels.balthasar.el.classList.add('resolve');
-        panels.casper.el.classList.add('reject');
-        panels.melchior.el.classList.add('resolve');
-      } else if (verdict === 'reject') {
-        Object.values(panels).forEach(p => p.el.classList.add('reject'));
-      } else {
-        Object.values(panels).forEach(p => p.el.classList.add('resolve'));
-      }
-
-      /* 裁決バッジ */
-      const label = verdict === 'resolve' ? '承認' : '否定';
-      responseIn.textContent = label;
-      responseEl.classList.add('visible', verdict);
-
-      voting = false;
-      voted  = true;
-      confirmBtn.disabled = false;
+      /* 全体裁決バッジ */
+      const overall = classifyOverall(data);
+      applyResponseStatus(overall);
 
     } catch (err) {
       console.error('MAGI error:', err);
-      Object.values(panels).forEach(p => p.el.classList.remove('flicker'));
-      voting = false;
-      confirmBtn.disabled = false;
-      /* エラー表示 */
-      responseIn.textContent = 'ERROR';
-      responseEl.classList.add('visible', 'reject');
-      setTimeout(doReset, 3000);
+      Object.keys(panels).forEach(n => panels[n].inner.classList.remove('flicker'));
+      responseEl.classList.remove('flicker');
+      applyResponseStatus('error');
+    } finally {
+      processing = false;
     }
-  };
+  }
+
+  /* ── パネルクリック → モーダル表示 ── */
+  function openModal(name) {
+    const modal = document.getElementById('modal-' + name);
+    if (!modal) return;
+
+    document.getElementById('mq-' + name).textContent = lastQuery || '—';
+
+    const vote = panelData[name] ? classifyVote(panelData[name]) : 'info';
+    document.getElementById('ms-' + name).textContent = STATUS[vote]?.text || '情 報';
+    document.getElementById('mr-' + name).textContent = panelData[name] || '—';
+
+    // 他のモーダルを閉じる
+    document.querySelectorAll('.modal').forEach(m => { m.style.display = 'none'; });
+    modal.style.display = 'block';
+  }
 
   /* ── イベント ── */
-  document.getElementById('magi-title').addEventListener('click', openModal);
+  Object.keys(panels).forEach(name => {
+    panels[name].wm.addEventListener('click', () => openModal(name));
+  });
 
-  /* 面板クリック：投票後はリセット、それ以外は入力を開く */
-  Object.values(panels).forEach(p => {
-    p.el.addEventListener('click', () => {
-      if (voted) doReset();
-      else openModal();
+  document.querySelectorAll('.close').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.modal;
+      if (id) document.getElementById(id).style.display = 'none';
     });
   });
 
-  closeBtn.addEventListener('click', closeModal);
-  confirmBtn.addEventListener('click', startDeliberation);
-
-  queryInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter')  startDeliberation();
-    if (e.key === 'Escape') closeModal();
+  queryEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter') deliberate();
   });
 
-  /* ESC でモーダルを閉じる */
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && modal.style.display !== 'none') closeModal();
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal').forEach(m => { m.style.display = 'none'; });
+    }
   });
+
+  /* ── 初期化実行 ── */
+  reset();
 })();
 </script>
 </body>
