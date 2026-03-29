@@ -34,15 +34,8 @@ class Caspar(BaseAgent):
     role = "女人"
 
     def call_api(self, question: str, context: str = "") -> str:
-        import google.generativeai as genai
-
-        genai.configure(api_key=self._api_key)
-        model = genai.GenerativeModel(
-            model_name="gemini-2.0-flash",
-            system_instruction=SYSTEM_PROMPT,
-        )
         prompt = f"原始问题：{question}\n\n{context}" if context else question
-        response = model.generate_content(prompt)
+        response = self._model.generate_content(prompt)
         return response.text
 
     def mock_response(self, question: str) -> str:
@@ -78,3 +71,10 @@ CASPER-3 持异议：在你真正想清楚「为什么要这样做」之前，�
         super().__init__(mock_mode=mock_mode)
         self._api_key = api_key
         print(f"[CASPER] api_key_set={bool(api_key)} mock_mode={mock_mode}")
+        if not mock_mode and api_key:
+            import google.generativeai as genai
+            genai.configure(api_key=api_key)
+            self._model = genai.GenerativeModel(
+                model_name="gemini-2.0-flash",
+                system_instruction=SYSTEM_PROMPT,
+            )
