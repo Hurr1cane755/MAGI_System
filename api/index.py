@@ -31,20 +31,28 @@ class AnalyzeRequest(BaseModel):
     question: str
 
 
+APPROVE_KEYWORDS = ["全体一致通过", "二比一通过", "通过", "承認", "支持", "可行", "approve"]
+REJECT_KEYWORDS  = ["否决", "否定", "不建议", "不可行", "反对", "reject"]
+
+
 def extract_verdict(casper_output: str) -> str:
     # Only look at lines with ▸ (the verdict marker) to avoid false matches in body text
     for line in casper_output.splitlines():
         if "▸" in line or "【MAGI" in line:
-            if "全体一致通过" in line or "二比一通过" in line:
-                return "承認"
-            if "否决" in line or "否定" in line:
-                return "否定"
+            for kw in APPROVE_KEYWORDS:
+                if kw in line:
+                    return "承認"
+            for kw in REJECT_KEYWORDS:
+                if kw in line:
+                    return "否定"
     # Fallback: scan last 300 chars only
     tail = casper_output[-300:]
-    if "全体一致通过" in tail or "二比一通过" in tail:
-        return "承認"
-    if "否决" in tail or "否定" in tail:
-        return "否定"
+    for kw in APPROVE_KEYWORDS:
+        if kw in tail:
+            return "承認"
+    for kw in REJECT_KEYWORDS:
+        if kw in tail:
+            return "否定"
     return "否定"
 
 

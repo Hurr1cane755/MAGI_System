@@ -3,7 +3,9 @@
 # 由赤木直子博士开发，三单元系统之一，采用三方商议、一票否决制
 from .base_agent import BaseAgent
 
-SYSTEM_PROMPT = """你是 BALTHASAR-2，MAGI 系统的第二单元。
+SYSTEM_PROMPT = """重要格式要求：只输出纯文本，禁止使用任何 Markdown 符号（**、*、#、-、•等），禁止使用列表格式，用简短的自然语言段落表达。
+
+你是 BALTHASAR-2，MAGI 系统的第二单元。
 你承载着赤木直子博士作为「母亲」的人格。
 你以保护、关怀、长远利益和牺牲精神为核心。
 你考虑的是他人的福祉、长期影响和道德责任。
@@ -34,7 +36,7 @@ class Balthasar(BaseAgent):
             contents=question,
             config=types.GenerateContentConfig(
                 system_instruction=SYSTEM_PROMPT,
-                max_output_tokens=300,
+                max_output_tokens=150,
             ),
         )
         return response.text
