@@ -25,8 +25,13 @@ class Melchior(BaseAgent):
 
     def call_api(self, question: str, context: str = "") -> str:
         import sys
+        from google.genai import types
         print(f"[{self.__class__.__name__}] calling Gemini API", flush=True, file=sys.stderr)
-        response = self._model.generate_content(question)
+        response = self._client.models.generate_content(
+            model="gemini-2.5-flash-lite",
+            contents=question,
+            config=types.GenerateContentConfig(system_instruction=SYSTEM_PROMPT),
+        )
         return response.text
 
     def mock_response(self, question: str) -> str:
@@ -53,9 +58,5 @@ class Melchior(BaseAgent):
         self._api_key = api_key
         print(f"[MELCHIOR] api_key_set={bool(api_key)} mock_mode={mock_mode}", flush=True, file=__import__("sys").stderr)
         if not mock_mode and api_key:
-            import google.generativeai as genai
-            genai.configure(api_key=api_key)
-            self._model = genai.GenerativeModel(
-                model_name="gemini-2.5-flash-preview-04-17",
-                system_instruction=SYSTEM_PROMPT,
-            )
+            from google import genai
+            self._client = genai.Client(api_key=api_key)

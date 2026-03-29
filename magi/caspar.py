@@ -35,9 +35,14 @@ class Caspar(BaseAgent):
 
     def call_api(self, question: str, context: str = "") -> str:
         import sys
+        from google.genai import types
         print(f"[{self.__class__.__name__}] calling Gemini API", flush=True, file=sys.stderr)
         prompt = f"原始问题：{question}\n\n{context}" if context else question
-        response = self._model.generate_content(prompt)
+        response = self._client.models.generate_content(
+            model="gemini-2.5-flash-lite",
+            contents=prompt,
+            config=types.GenerateContentConfig(system_instruction=SYSTEM_PROMPT),
+        )
         return response.text
 
     def mock_response(self, question: str) -> str:
@@ -74,9 +79,5 @@ CASPER-3 持异议：在你真正想清楚「为什么要这样做」之前，�
         self._api_key = api_key
         print(f"[CASPER] api_key_set={bool(api_key)} mock_mode={mock_mode}", flush=True, file=__import__("sys").stderr)
         if not mock_mode and api_key:
-            import google.generativeai as genai
-            genai.configure(api_key=api_key)
-            self._model = genai.GenerativeModel(
-                model_name="gemini-2.5-flash-preview-04-17",
-                system_instruction=SYSTEM_PROMPT,
-            )
+            from google import genai
+            self._client = genai.Client(api_key=api_key)
