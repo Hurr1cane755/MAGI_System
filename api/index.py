@@ -12,7 +12,10 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from magi import Balthasar, Caspar, Melchior
 
-print(f"[MAGI BOOT] GOOGLE_API_KEY set={bool(os.environ.get('GOOGLE_API_KEY'))}")
+def log(*args):
+    print(*args, flush=True, file=sys.stderr)
+
+log(f"[MAGI BOOT] GOOGLE_API_KEY set={bool(os.environ.get('GOOGLE_API_KEY'))}")
 
 app = FastAPI(title="MAGI-Link API")
 
@@ -38,25 +41,27 @@ def extract_verdict(casper_output: str) -> str:
 
 
 def run_agent(agent, question: str) -> str:
-    """运行 agent，出错时打印完整异常并 fallback 到 mock"""
     name = agent.__class__.__name__
+    log(f"[RUN_AGENT] {name} starting")
     try:
         return agent.analyze(question)
     except Exception as e:
-        print(f"[ERROR] {name} failed: {type(e).__name__}: {e}")
-        print(traceback.format_exc())
+        log(f"[ERROR] {name} failed: {type(e).__name__}: {e}")
+        log(traceback.format_exc())
         return agent.mock_response(question)
 
 
 @app.post("/api/analyze")
 async def analyze(req: AnalyzeRequest):
+    log(f"[ANALYZE START] question={req.question[:20]!r}")
+
     if not req.question.strip():
         raise HTTPException(status_code=400, detail="问题不能为空")
 
     google_key = os.environ.get("GOOGLE_API_KEY")
     mock = not bool(google_key)
     prefix = google_key[:8] if google_key else "NOT_SET"
-    print(f"[MAGI REQUEST] mock={mock} key_prefix={prefix} question={req.question[:40]!r}")
+    log(f"[MAGI REQUEST] mock={mock} key_prefix={prefix}")
 
     melchior = Melchior(api_key=google_key, mock_mode=mock)
     balthasar = Balthasar(api_key=google_key, mock_mode=mock)
@@ -73,8 +78,8 @@ async def analyze(req: AnalyzeRequest):
             try:
                 results[key] = fut.result()
             except Exception as e:
-                print(f"[ERROR] future {key}: {type(e).__name__}: {e}")
-                print(traceback.format_exc())
+                log(f"[ERROR] future {key}: {type(e).__name__}: {e}")
+                log(traceback.format_exc())
                 results[key] = f"（获取结果失败：{e}）"
 
     try:
@@ -84,11 +89,11 @@ async def analyze(req: AnalyzeRequest):
             results.get("balthasar", ""),
         )
     except Exception as e:
-        print(f"[ERROR] Casper analyze_with_context: {type(e).__name__}: {e}")
-        print(traceback.format_exc())
+        log(f"[ERROR] Casper analyze_with_context: {type(e).__name__}: {e}")
+        log(traceback.format_exc())
         casper_output = casper.mock_response(req.question)
 
-    print(f"[MAGI DONE] verdict={extract_verdict(casper_output)} mock={mock}")
+    log(f"[MAGI DONE] verdict={extract_verdict(casper_output)} mock={mock}")
 
     return JSONResponse({
         "melchior": results.get("melchior", ""),

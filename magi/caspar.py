@@ -34,6 +34,8 @@ class Caspar(BaseAgent):
     role = "女人"
 
     def call_api(self, question: str, context: str = "") -> str:
+        import sys
+        print(f"[{self.__class__.__name__}] calling Gemini API", flush=True, file=sys.stderr)
         prompt = f"原始问题：{question}\n\n{context}" if context else question
         response = self._model.generate_content(prompt)
         return response.text
@@ -70,7 +72,7 @@ CASPER-3 持异议：在你真正想清楚「为什么要这样做」之前，�
     def __init__(self, api_key: str | None = None, mock_mode: bool = False):
         super().__init__(mock_mode=mock_mode)
         self._api_key = api_key
-        print(f"[CASPER] api_key_set={bool(api_key)} mock_mode={mock_mode}")
+        print(f"[CASPER] api_key_set={bool(api_key)} mock_mode={mock_mode}", flush=True, file=__import__("sys").stderr)
         if not mock_mode and api_key:
             import google.generativeai as genai
             genai.configure(api_key=api_key)
