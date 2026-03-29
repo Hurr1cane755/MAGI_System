@@ -32,11 +32,19 @@ class AnalyzeRequest(BaseModel):
 
 
 def extract_verdict(casper_output: str) -> str:
+    # Only look at lines with ▸ (the verdict marker) to avoid false matches in body text
     for line in casper_output.splitlines():
-        if "否决" in line or "否定" in line:
-            return "否定"
-        if "全体一致通过" in line or "二比一通过" in line:
-            return "承認"
+        if "▸" in line or "【MAGI" in line:
+            if "全体一致通过" in line or "二比一通过" in line:
+                return "承認"
+            if "否决" in line or "否定" in line:
+                return "否定"
+    # Fallback: scan last 300 chars only
+    tail = casper_output[-300:]
+    if "全体一致通过" in tail or "二比一通过" in tail:
+        return "承認"
+    if "否决" in tail or "否定" in tail:
+        return "否定"
     return "否定"
 
 
@@ -98,6 +106,7 @@ async def analyze(req: AnalyzeRequest):
     log(f"[RESPONSE] melchior={m_out[:80]!r}")
     log(f"[RESPONSE] balthasar={b_out[:80]!r}")
     log(f"[RESPONSE] casper={casper_output[:80]!r}")
+    log(f"[VERDICT] raw casper output last 200 chars: {casper_output[-200:]}")
     log(f"[MAGI DONE] verdict={extract_verdict(casper_output)} mock={mock}")
 
     return JSONResponse({
