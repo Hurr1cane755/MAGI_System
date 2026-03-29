@@ -56,3 +56,4 @@ class Melchior(BaseAgent):
     def __init__(self, api_key: str | None = None, mock_mode: bool = False):
         super().__init__(mock_mode=mock_mode)
         self._api_key = api_key
+        print(f"[MELCHIOR] api_key_set={bool(api_key)} mock_mode={mock_mode}")
