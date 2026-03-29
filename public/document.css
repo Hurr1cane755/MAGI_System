@@ -1,9 +1,9 @@
 /* Compiled from itorr/magi document.less — with MAGI-Link additions */
 
 :root {
-    --color-orange: orange;
+    --color-orange: #ff6600;
     --color-yellow: #ffff00;
-    --color-blue: aquamarine;
+    --color-blue: #5bc8d2;
     --color-black: #000;
     --color-red: #C00;
     --color-green: chartreuse;
@@ -44,7 +44,11 @@ html {
 
 body {
     background: var(--color-black);
-    box-shadow: 0 0 0 var(--body-padding) var(--color-orange) inset;
+    /* Double-layer border: outer thin (1px) + inner thick (~4px) */
+    box-shadow:
+        0 0 0 1px var(--color-orange) inset,
+        0 0 0 calc(var(--body-padding) - 4px) var(--color-black) inset,
+        0 0 0 var(--body-padding) var(--color-orange) inset;
     margin: 0;
     box-sizing: border-box;
     height: var(--app-height);
@@ -57,11 +61,17 @@ body[data-status="voted"] {
 }
 body[data-status="voted"][data-vote-status="resolve"] {
     color: var(--color-green);
-    box-shadow: 0 0 0 var(--body-padding) var(--color-green) inset;
+    box-shadow:
+        0 0 0 1px var(--color-green) inset,
+        0 0 0 calc(var(--body-padding) - 4px) var(--color-black) inset,
+        0 0 0 var(--body-padding) var(--color-green) inset;
 }
 body[data-status="voted"][data-vote-status="reject"] {
     color: var(--color-red);
-    box-shadow: 0 0 0 var(--body-padding) var(--color-red) inset;
+    box-shadow:
+        0 0 0 1px var(--color-red) inset,
+        0 0 0 calc(var(--body-padding) - 4px) var(--color-black) inset,
+        0 0 0 var(--body-padding) var(--color-red) inset;
 }
 
 .magi-box {
@@ -149,7 +159,7 @@ header h1::after {
 
 .config-box {
     font-weight: 200;
-    font-family: 'Neue Helvetica', Helvetica, sans-serif;
+    font-family: 'Courier New', Courier, monospace;
     font-size: .8em;
     text-align: left;
     padding: 2em .3em;
@@ -187,6 +197,7 @@ header h1::after {
     content: '0.0000001';
 }
 
+/* ── MAGI CENTER LOGO ── */
 .magi-logo {
     position: absolute;
     left: 0;
@@ -194,45 +205,55 @@ header h1::after {
     top: 0;
     bottom: 0;
     margin: auto;
-    width: 8em;
-    height: 8em;
-    line-height: 8em;
-    border-radius: 9em;
+    width: 5em;
+    height: 5em;
+    line-height: 5em;
+    border-radius: 0;
     font-size: 2em;
-    box-shadow: 0 0 0 .18em currentColor;
+    box-shadow: 0 0 0 .12em currentColor;
     pointer-events: none;
-}
-.magi-logo::after {
-    display: none;
-    content: 'System';
-    text-transform: uppercase;
-    font-weight: 400;
-    font-family: 'Neue Helvetica', Helvetica, sans-serif;
-    position: absolute;
-    top: 57%;
-    left: 0;
-    right: 0;
-    text-align: center;
-    line-height: 1;
-    font-size: 12px;
-    opacity: 0;
-    transform: scale(.4);
+    z-index: 2;
+    overflow: visible;
 }
 
+/* Connecting line upward to BALTHASAR */
+.magi-logo::before {
+    content: '';
+    display: block;
+    position: absolute;
+    left: calc(50% - 2px);
+    bottom: 50%;
+    width: 4px;
+    height: 10em;
+    background: currentColor;
+}
+
+/* Connecting lines downward to CASPER and MELCHIOR */
+.magi-logo::after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 18em;
+    height: 4px;
+    background: currentColor;
+    transform: translate(-50%, 3em) rotate(-28deg);
+    box-shadow: 0 6em 0 0 currentColor;
+}
+
+/* ── MAGI PANELS ── */
 .magi-item {
-    width: 8em;
+    width: 11em;
     height: 8em;
     display: inline-block;
-    box-shadow:
-        0 0 0 .1em var(--color-black),
-        0 0 0 .4em currentColor,
-        0 0 0 .5em var(--color-black);
-    background: var(--color-green);
+    background: var(--color-blue);
     text-align: center;
-    padding: 0;
+    padding: .4em .5em;
     font-family: 'Neue Helvetica', Helvetica, sans-serif;
     position: absolute;
     top: 50%;
+    box-sizing: border-box;
 }
 .magi-item h2 {
     font-size: 4em;
@@ -248,21 +269,27 @@ header h1::after {
     color: var(--color-black);
 }
 
+/* MELCHIOR·1 — bottom right, left-top corner cut */
 .magi-item.melchior {
     left: 50%;
-    transform: translate(35%, 10%) rotate(-57deg);
+    transform: translate(8%, -20%);
+    clip-path: polygon(22% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 22%);
 }
 .magi-item.melchior h2::before { content: '1'; }
 
+/* BALTHASAR·2 — top center, pentagon (wide top, two bottom corners angled in) */
 .magi-item.malthasar {
     left: 50%;
-    transform: translate(-50%, -135%);
+    transform: translate(-50%, -155%);
+    clip-path: polygon(0% 0%, 100% 0%, 100% 62%, 50% 100%, 0% 62%);
 }
 .magi-item.malthasar h2::before { content: '2'; }
 
+/* CASPER·3 — bottom left, right-top corner cut */
 .magi-item.casper {
     right: 50%;
-    transform: translate(-35%, 10%) rotate(57deg);
+    transform: translate(-8%, -20%);
+    clip-path: polygon(0% 0%, 78% 0%, 100% 22%, 100% 100%, 0% 100%);
 }
 .magi-item.casper h2::before { content: '3'; }
 
@@ -293,7 +320,7 @@ body[data-status="voting"] .magi-box > * {
     pointer-events: none;
 }
 body[data-status="voting"] .magi-item {
-    background: var(--color-green);
+    background: var(--color-blue);
     animation: magi-flash var(--flash-time) infinite step-end;
 }
 body[data-status="voting"] .magi-item h2::before {
@@ -412,7 +439,7 @@ body[data-loading="true"] .magi-logo {
     transform: scale(4, 4);
 }
 body[data-loading="true"] .magi-logo::after {
-    opacity: 1;
+    opacity: 0;
 }
 body[data-loading="true"] .magi-box {
     transform: scale(.9);
@@ -437,7 +464,7 @@ body[data-loading="true"] footer {
     border: none;
     border-bottom: 1px solid currentColor;
     color: currentColor;
-    font-family: 'Neue Helvetica', Helvetica, sans-serif;
+    font-family: 'Courier New', Courier, monospace;
     font-size: inherit;
     font-weight: 200;
     outline: none;
