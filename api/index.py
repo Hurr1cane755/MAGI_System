@@ -64,10 +64,11 @@ async def analyze(req: AnalyzeRequest):
     casper    = Caspar(api_key=google_key, mock_mode=mock)
 
     results: dict[str, str] = {}
-    with ThreadPoolExecutor(max_workers=2) as executor:
+    with ThreadPoolExecutor(max_workers=3) as executor:
         futures = {
             executor.submit(run_agent, melchior, req.question): "melchior",
             executor.submit(run_agent, balthasar, req.question): "balthasar",
+            executor.submit(run_agent, casper,    req.question): "casper",
         }
         for fut in as_completed(futures):
             key = futures[fut]
@@ -78,33 +79,24 @@ async def analyze(req: AnalyzeRequest):
                 log(traceback.format_exc())
                 results[key] = f"（获取结果失败：{e}）"
 
-    try:
-        casper_output = casper.analyze_with_context(
-            req.question,
-            results.get("melchior", ""),
-            results.get("balthasar", ""),
-        )
-    except Exception as e:
-        log(f"[ERROR] Casper analyze_with_context: {type(e).__name__}: {e}")
-        log(traceback.format_exc())
-        casper_output = casper.mock_response(req.question)
-
     m_out = results.get("melchior", "")
     b_out = results.get("balthasar", "")
+    casper_output = results.get("casper", "")
 
     melchior_vote = extract_first_word(m_out)
     balthasar_vote = extract_first_word(b_out)
     casper_vote = extract_first_word(casper_output)
 
-    votes = [melchior_vote, balthasar_vote, casper_vote]
-    reject_count = votes.count("拒绝")
-    verdict = "否定" if reject_count >= 2 else "承認"
+    if "拒绝" in [melchior_vote, balthasar_vote, casper_vote]:
+        verdict = "否定"
+    else:
+        verdict = "承認"
 
     log(f"[RESPONSE] melchior={m_out[:80]!r}")
     log(f"[RESPONSE] balthasar={b_out[:80]!r}")
     log(f"[RESPONSE] casper={casper_output[:80]!r}")
     log(f"[VOTES] melchior={melchior_vote!r} balthasar={balthasar_vote!r} casper={casper_vote!r}")
-    log(f"[MAGI DONE] verdict={verdict} reject_count={reject_count} mock={mock}")
+    log(f"[MAGI DONE] verdict={verdict} mock={mock}")
 
     return JSONResponse({
         "melchior": m_out,
