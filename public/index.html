@@ -222,8 +222,8 @@ body {
 
 /* ── アニメーション ── */
 @keyframes panel-flicker-rg {
-  0%   { background: #2db86b !important; color: #000 !important; }
-  50%  { background: #c01212 !important; color: #ffcccc !important; }
+  0%   { background: #2db86b; color: #000; }
+  50%  { background: #c01212; color: #ffcccc; }
 }
 @keyframes badge-flicker {
   0%  {}
@@ -604,8 +604,12 @@ body {
     setBadge('voting');
     responseEl.classList.add('badge-voting');
 
-    // パネルフリッカー開始
-    Object.keys(PANELS).forEach(n => PANELS[n].wm.classList.add('panel-voting'));
+    // パネルフリッカー開始（内联样式会盖住 keyframes，先清掉）
+    Object.keys(PANELS).forEach(n => {
+      PANELS[n].inner.style.background = '';
+      PANELS[n].inner.style.color = '';
+      PANELS[n].wm.classList.add('panel-voting');
+    });
 
     try {
       const res = await fetch('/api/analyze', {
