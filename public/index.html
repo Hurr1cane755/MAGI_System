@@ -221,17 +221,19 @@ body {
 }
 
 /* ── アニメーション ── */
-@keyframes panel-flicker {
-  0%  {}
-  50% { background: #000 !important; color: #000 !important; }
+@keyframes panel-flicker-rg {
+  0%   { background: #2db86b !important; color: #000 !important; }
+  50%  { background: #c01212 !important; color: #ffcccc !important; }
 }
 @keyframes badge-flicker {
   0%  {}
   50% { opacity: 0; }
 }
 
-.panel-voting > .inner { animation: panel-flicker 0.25s infinite step-end; }
-.badge-voting          { animation: badge-flicker 0.3s  infinite step-end; }
+.panel-voting.casper    > .inner { animation: panel-flicker-rg 0.4s 0.00s infinite step-end; }
+.panel-voting.balthasar > .inner { animation: panel-flicker-rg 0.4s 0.13s infinite step-end; }
+.panel-voting.melchior  > .inner { animation: panel-flicker-rg 0.4s 0.26s infinite step-end; }
+.badge-voting                    { animation: badge-flicker 0.3s infinite step-end; }
 
 /* ── 接続ライン ── */
 .connection {
@@ -252,15 +254,15 @@ body {
 .input-modal {
   display: none;
   position: absolute;
-  right: 15px;
-  top: 15px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   z-index: 60;
   border: 2px solid #e07800;
   background: #000;
   color: #e07800;
   font-family: 'Lucida Console', 'Courier New', monospace;
-  min-width: 320px;
-  max-width: 480px;
+  width: min(580px, 88%);
 }
 .input-modal.open { display: block; }
 
@@ -286,10 +288,10 @@ body {
 .input-modal-close:hover { background: #e07800; color: #000; }
 
 .input-modal-body {
-  padding: 12px;
+  padding: 18px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 .input-modal-body label {
   font-size: 11px;
@@ -303,8 +305,8 @@ body {
   border: 2px solid #e07800;
   color: #e07800;
   font-family: 'Lucida Console', 'Courier New', monospace;
-  font-size: 13px;
-  padding: 5px 8px;
+  font-size: 15px;
+  padding: 10px 14px;
   outline: none;
 }
 .input-modal-body input:focus        { border-color: #ffc060; }
@@ -338,8 +340,6 @@ body {
   font-family: 'Lucida Console', 'Courier New', monospace;
   max-width: 55%;
   min-width: 290px;
-  top: 8%;
-  right: 8%;
   z-index: 50;
 }
 .modal-header {
@@ -651,15 +651,57 @@ body {
     }
   }
 
-  /* ── パネルクリック → 詳細モーダル ── */
+  /* ── パネルクリック → 詳細モーダル（パネル位置に近づける） ── */
   function openModal(name) {
     const rawVote = panelData[name + '_vote'] || '';
     const voteLabel = rawVote === '拒绝' ? BADGE.no.text : rawVote === '通过' ? BADGE.yes.text : '—';
     document.getElementById('mq-' + name).textContent = lastQuery || '—';
     document.getElementById('ms-' + name).textContent = voteLabel;
     document.getElementById('mr-' + name).textContent = bodyText(panelData[name] || '') || '—';
-    document.querySelectorAll('.modal').forEach(m => { m.style.display = 'none'; });
-    document.getElementById('modal-' + name).style.display = 'block';
+    document.querySelectorAll('.modal').forEach(m => {
+      m.style.display = 'none';
+      m.style.left = '';
+      m.style.top  = '';
+    });
+
+    const modal = document.getElementById('modal-' + name);
+    modal.style.display = 'block';
+
+    const sysEl    = document.querySelector('.system');
+    const sysRect  = sysEl.getBoundingClientRect();
+    const panelEl  = document.getElementById('wm-' + name);
+    const pr       = panelEl.getBoundingClientRect();
+    const gap      = 14;
+
+    const pL  = pr.left   - sysRect.left;
+    const pR  = pr.right  - sysRect.left;
+    const pT  = pr.top    - sysRect.top;
+    const pB  = pr.bottom - sysRect.top;
+    const pCY = (pT + pB) / 2;
+    const pCX = (pL + pR) / 2;
+
+    const mW = modal.offsetWidth;
+    const mH = modal.offsetHeight;
+    const sW = sysRect.width;
+    const sH = sysRect.height;
+
+    let left, top;
+    if (name === 'casper') {
+      // 左面板 → 弹窗出现在右侧
+      left = Math.min(pR + gap, sW - mW - gap);
+      top  = Math.max(gap, Math.min(pCY - mH / 2, sH - mH - gap));
+    } else if (name === 'melchior') {
+      // 右面板 → 弹窗出现在左侧
+      left = Math.max(gap, pL - gap - mW);
+      top  = Math.max(gap, Math.min(pCY - mH / 2, sH - mH - gap));
+    } else {
+      // BALTHASAR 中上 → 弹窗出现在下方，水平居中
+      left = Math.max(gap, Math.min(pCX - mW / 2, sW - mW - gap));
+      top  = Math.min(pB + gap, sH - mH - gap);
+    }
+
+    modal.style.left = left + 'px';
+    modal.style.top  = top  + 'px';
   }
 
   /* ── 入力浮窗開閉 ── */
