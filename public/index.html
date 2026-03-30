@@ -230,9 +230,9 @@ body {
   50% { opacity: 0; }
 }
 
-.panel-voting.casper    > .inner { animation: panel-flicker-rg 0.4s 0.00s infinite step-end; }
-.panel-voting.balthasar > .inner { animation: panel-flicker-rg 0.4s 0.13s infinite step-end; }
-.panel-voting.melchior  > .inner { animation: panel-flicker-rg 0.4s 0.26s infinite step-end; }
+.panel-voting > .inner {
+  animation: panel-flicker-rg var(--panel-dur, 0.4s) var(--panel-delay, 0s) infinite step-end;
+}
 .badge-voting                    { animation: badge-flicker 0.3s infinite step-end; }
 
 /* ── 接続ライン ── */
@@ -604,10 +604,15 @@ body {
     setBadge('voting');
     responseEl.classList.add('badge-voting');
 
-    // パネルフリッカー開始（内联样式会盖住 keyframes，先清掉）
+    // パネルフリッカー開始（清除内联色值，随机化每个面板的速度和相位）
     Object.keys(PANELS).forEach(n => {
-      PANELS[n].inner.style.background = '';
-      PANELS[n].inner.style.color = '';
+      const el = PANELS[n].inner;
+      el.style.background = '';
+      el.style.color = '';
+      const dur   = (0.2 + Math.random() * 0.5).toFixed(2);
+      const delay = (-Math.random() * 0.5).toFixed(2);
+      el.style.setProperty('--panel-dur',   dur   + 's');
+      el.style.setProperty('--panel-delay', delay + 's');
       PANELS[n].wm.classList.add('panel-voting');
     });
 
